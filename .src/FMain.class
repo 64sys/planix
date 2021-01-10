@@ -1,0 +1,104 @@
+' Gambas class file
+
+Public Sub Form_Open()
+
+  m1(pnlToolsFile)
+  m1(pnlFile2)
+  m1(pnlToolsEntities)
+  m1(pnlToolsDimensions)
+
+End
+
+Private Sub m1(cnr As Container)
+
+  Dim btx As New String[]
+  Dim shx As New String[]
+  Dim i As Integer
+  Dim tob As ToolButton
+  Dim pic As Picture
+  Dim svg As String
+  Dim sPic As String
+  Dim spr As Spring
+
+  btx.Clear
+  shx.Clear
+
+  Select cnr.Tag
+    Case "file"
+      btx = ["~", "new", "open", "save", "save-as", "upload", "download", "print", "fullscreen", "~"]
+      shx = ["~", ("New"), ("Open"), ("Save"), ("Save as"), ("Import"), ("Export"), ("Print"), "Full screen", "~"]
+
+    Case "file2"
+      btx = ["quit", "~"]
+      shx = [("Quit"), "~"]
+
+    Case "entities"
+      btx = ["line", "lwpolyline", "spline", "text", "mtext", "arc", "circle", "ellipse", "block", "attrib", "hatch", "insert", "leader", "point", "polygon", "rectangle", "solid", "~"]
+      shx = [("line"), ("polyline"), ("spline"), ("text"), ("multi text"), ("arc"), ("circle"), ("ellipse"), ("block"), ("attribute"), ("hatch"), ("insert"), ("leader"), ("point"), ("polygon"), ("rectangle"), ("solid"), "~"]
+
+      'Case "edit"
+
+    Case "dimensions"
+      btx = ["~", "dimension_linear", "dimension_aligned", "arc_dimension", "dimension_ang3pt", "dimension_radius", "dimension_diameter", "large_radial_dimension", "dimension_ordinate", "~"]
+      shx = ["~", "dimension_linear", "dimension_aligned", "arc_dimension", "dimension_ang3pt", "dimension_radius", "dimension_diameter", "large_radial_dimension", "dimension_ordinate", "~"]
+
+      'Case "locks"
+
+  End Select
+
+  For i = 0 To btx.Max
+    Select btx[i]
+      Case "~"
+        spr = New Spring(cnr)
+      Case Else
+
+        tob = New ToolButton(cnr) As "mFile"
+        Select cnr.Tag
+          Case "file", "file2"
+            pic = Stock["32/" & btx[i]]
+          Case Else
+            sPic = "./svg/" & cnr.tag &/ btx[i] & ".svg"
+            If Application.DarkTheme Then
+              svg = Replace(File.Load(sPic), "#0066b3;", "#eeeeee;")
+            Else
+              svg = Replace(File.Load(sPic), "#0066b3;", "#000000;")
+            Endif
+            pic = Image.FromString(svg).Stretch(32, 32).Picture
+        End Select
+
+        With tob
+          .Name = btx[i]
+          .H = 35
+          .W = 35
+          .Tag = btx[i]
+          .Tooltip = shx[i]
+          .Picture = pic
+        End With
+    End Select
+  Next
+
+End
+
+Public Sub mFile_Click()
+
+  Select Last.tag
+    Case "new"
+    Case "open"
+    Case "save"
+    Case "save-as"
+    Case "upload"
+    Case "download"
+    Case "print"
+    Case "quit"
+      Me.Close
+    Case "fullscreen"
+      If Me.Maximized Then
+        Me.Maximized = False
+        Me.Border = True
+      Else
+        Me.Maximized = True
+        Me.Border = False
+      Endif
+  End Select
+
+End

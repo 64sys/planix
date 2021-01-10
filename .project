@@ -1,0 +1,16 @@
+# Gambas Project File 3.0
+Title=Technical drawing application
+Startup=FMain
+Version=0.0.1
+Component=gb.image
+Component=gb.gui
+Component=gb.form
+Component=gb.settings
+Component=gb.form.mdi
+Description="Technical drawing application"
+Authors="Belmotek"
+TabSize=2
+Translate=1
+Language=en_US
+Vendor=belmotek
+Packager=1
