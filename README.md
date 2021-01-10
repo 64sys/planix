@@ -22,14 +22,6 @@ Here it is possible to see the data of the drawing in table format. There is als
 | <img src="./svg/entities/leader.svg" width="48" height="48"> | li | Leader | Create a leader |
 | <img src="./svg/entities/insert.svg" width="48" height="48"> | ii | Insert | Insert a block insert |
 | <img src="./svg/entities/block.svg" width="48" height="48"> | b | block | Create a block |
-| <img src="./svg/entities/dimension_linear.svg" width="48" height="48"> | d0 | dimension_linear | Linear dimension |
-| <img src="./svg/entities/dimension_aligned.svg" width="48" height="48"> | d1 | dimension_aligned | Aligned dimension |
-| <img src="./svg/entities/dimension_ang3pt.svg" width="48" height="48"> | d2 | dimension_ang3pt | Angular dimension |
-| <img src="./svg/entities/arc_dimension.svg" width="48" height="48"> | d3 | arc_dimension | Arc lenght dimension |
-| <img src="./svg/entities/dimension_radius.svg" width="48" height="48"> | d4 | dimension_radius | Dimension radius |
-| <img src="./svg/entities/dimension_diameter.svg" width="48" height="48"> | d5 | dimension_diameter | Dimension diameter |
-| <img src="./svg/entities/large_radial_dimension.svg" width="48" height="48"> | d6 | dimension_radius | Dimension large radial |
-| <img src="./svg/entities/dimension_ordinate.svg" width="48" height="48"> | d7 | ordinate_dimension | Dimension ordinate |
 | <img src="./svg/entities/spline.svg" width="48" height="48"> | sq | Spline | Create an spline |
 | <img src="./svg/entities/solid.svg" width="48" height="48"> | sa | Solid | Create an solid |
 | <img src="./svg/entities/rectangle.svg" width="48" height="48"> | re | Rectangle | Create an rectangle |
@@ -38,11 +30,22 @@ Here it is possible to see the data of the drawing in table format. There is als
 | <img src="./svg/entities/point.svg" width="48" height="48"> | pt | point | Create a point |
 | <img src="./svg/entities/ray.svg" width="48" height="48"> | ry | Rectangle | Create an ray trace |
 
+# Dimensions
+| Icon | Alias | Name | Description |
+|------|:-----:|:----:|------------:|
+| <img src="./svg/dimensions/dimension_linear.svg" width="48" height="48"> | d0 | dimension_linear | Linear dimension |
+| <img src="./svg/dimensions/dimension_aligned.svg" width="48" height="48"> | d1 | dimension_aligned | Aligned dimension |
+| <img src="./svg/dimensions/dimension_ang3pt.svg" width="48" height="48"> | d2 | dimension_ang3pt | Angular dimension |
+| <img src="./svg/dimensions/arc_dimension.svg" width="48" height="48"> | d3 | arc_dimension | Arc lenght dimension |
+| <img src="./svg/dimensions/dimension_radius.svg" width="48" height="48"> | d4 | dimension_radius | Dimension radius |
+| <img src="./svg/dimensions/dimension_diameter.svg" width="48" height="48"> | d5 | dimension_diameter | Dimension diameter |
+| <img src="./svg/dimensions/large_radial_dimension.svg" width="48" height="48"> | d6 | dimension_radius | Dimension large radial |
+| <img src="./svg/dimensions/dimension_ordinate.svg" width="48" height="48"> | d7 | ordinate_dimension | Dimension ordinate |
+
 
 # Tools
 | Icon | Alias | Name | Description |
 |------|:-----:|:----:|------------:|
-| <img src="./svg/tools/select.svg" width="48" height="48"> | | Select | Selection tool |
 | <img src="./svg/tools/move.svg" width="48" height="48"> | m | Move | Move a site entity |
 | <img src="./svg/tools/copy.svg" width="48" height="48"> | c | Copy | Copy an entity |
 | <img src="./svg/tools/scale.svg" width="48" height="48"> | sc | Scale | Scale an entity |
@@ -58,26 +61,25 @@ Here it is possible to see the data of the drawing in table format. There is als
 | <img src="./svg/tools/break.svg" width="48" height="48"> | bg | Break | Brak a entity in two parts |
 | <img src="./svg/tools/extend.svg" width="48" height="48"> | e | Extend | Stretch an entity from one end |
 | <img src="./svg/tools/erase.svg" width="48" height="48"> | de | erase | Delete an entity |
-| <img src="./svg/tools/area.svg" width="48" height="48"> | mh | area | Meassure area |
-| <img src="./svg/tools/ruler.svg" width="48" height="48"> | mj | ruler | Measure distance |
-| <img src="./svg/tools/protractor.svg" width="48" height="48"> | mk | protractos | Measure angle |
-| <img src="./svg/tools/pan.svg" width="48" height="48"> | zc | Pan | Displacement of sight |
-| <img src="./svg/tools/zoome.svg" width="48" height="48"> | zx | Zoome | View fit to all entities |
-| <img src="./svg/tools/zoomw.svg" width="48" height="48"> | z | Zoomw | View window |
+
+# Inquiry
+| Icon | Alias | Name | Description |
+|------|:-----:|:----:|------------:|
+| <img src="./svg/inquiry/area.svg" width="48" height="48"> | mh | area | Meassure area |
+| <img src="./svg/inquiry/ruler.svg" width="48" height="48"> | mj | ruler | Measure distance |
+| <img src="./svg/inquiry/protractor.svg" width="48" height="48"> | mk | protractos | Measure angle |
+
+# View
+| Icon | Alias | Name | Description |
+|------|:-----:|:----:|------------:|
+| <img src="./svg/view/pan.svg" width="48" height="48"> | zc | Pan | Displacement of sight |
+| <img src="./svg/view/zoome.svg" width="48" height="48"> | zx | Zoome | View fit to all entities |
+| <img src="./svg/view/zoomw.svg" width="48" height="48"> | z | Zoomw | View window |
 
 # Layers
 | Icon | Alias | Name | Description |
 |------|:-----:|:----:|------------:|
 | <img src="./svg/layers/layers.svg" width="48" height="48"> | lk | Layers |  |
-
-# Smart - concret structures
-| Icon | Alias | Name | Description |
-|------|:-----:|:----:|------------:|
-| <img src="./svg/smart/beam.svg" width="48" height="48"> | w1 | Beam |  |
-| <img src="./svg/smart/column.svg" width="48" height="48"> | w2 | Column |  |
-| <img src="./svg/smart/slab3p.svg" width="48" height="48"> | w3 | Slab3P |  |
-| <img src="./svg/smart/slab4p.svg" width="48" height="48"> | w4 | Slab4P |  |
-| <img src="./svg/smart/wallcolumn.svg" width="48" height="48"> | w5 | Wallcolumn |  |
 
 # Locks
 | Icon | Key | Name | Description |
