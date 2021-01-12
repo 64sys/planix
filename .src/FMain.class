@@ -34,7 +34,7 @@ Public Sub Form_Open()
   Me.Icon = Image.FromString(svg).Stretch(64, 64).Picture
   pnlData.Layout = [1, 4]
 
-  fx = fil.ScanFiles("/home/bmk/Documentos/cad-sample", ["[dD][wW][gG]"])
+  fx = fil.ScanFiles(User.Home &/ "Documentos/cad-sample", ["[dD][wW][gG]"])
   For Each f In fx
     Print f
     OpenFile(f)
