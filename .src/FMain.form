@@ -5,39 +5,40 @@
   Arrangement = Arrange.Horizontal
   { pnlToolsEntities Panel
     MoveScaled(2,1,5,89)
+    Visible = False
     Enabled = False
     Tag = "entities"
     Arrangement = Arrange.Vertical
   }
   { Panel1 Panel
-    MoveScaled(9,2,105,88)
+    MoveScaled(9,1,124,88)
     Expand = True
     Arrangement = Arrange.Vertical
     { pnlToolsFile Panel
-      MoveScaled(4,4,97,5)
+      MoveScaled(4,4,118,5)
       Tag = "file"
       Arrangement = Arrange.Horizontal
     }
     { Panel2 Panel
-      MoveScaled(4,11,96,67)
+      MoveScaled(4,10,118,67)
       Expand = True
       Arrangement = Arrange.Horizontal
-      { DrawingArea1 DrawingArea
-        MoveScaled(5,10,33,36)
-        Visible = False
-        Background = Color.DarkGray
-        Expand = True
-      }
       { pnlData HSplit
-        MoveScaled(40,10,50,36)
-        { TreeView1 TreeView
-          MoveScaled(2,6,13,26)
-          Background = Color.TextBackground
+        MoveScaled(1,1,116,65)
+        Expand = True
+        { Panel4 Panel
+          MoveScaled(6,5,31,27)
           Expand = True
-          Border = False
+          Arrangement = Arrange.Vertical
+          { TreeView1 TreeView
+            MoveScaled(1,3,29,23)
+            Background = Color.TextBackground
+            Expand = True
+            Border = False
+          }
         }
         { Panel13 Panel
-          MoveScaled(17,6,30,26)
+          MoveScaled(38,6,30,26)
           Expand = True
           Arrangement = Arrange.Vertical
           { Panel8 Panel
@@ -45,7 +46,7 @@
             Visible = False
             Arrangement = Arrange.Horizontal
           }
-          { GridView1 GridView
+          { TableView1 TableView
             MoveScaled(2,7,26,8)
             Expand = True
             Border = False
@@ -58,17 +59,36 @@
             Arrangement = Arrange.Vertical
           }
         }
+        { DrawingArea1 DrawingArea
+          MoveScaled(71,8,22,24)
+          Visible = False
+          Background = Color.DarkGray
+          Expand = True
+        }
       }
     }
-    { pnlToolsCommands Panel
-      MoveScaled(3,80,97,5)
-      Enabled = False
-      Tag = "locks"
+    { Panel3 Panel
+      MoveScaled(3,80,119,5)
       Arrangement = Arrange.Horizontal
+      { pnlToolsCommands Panel
+        MoveScaled(0,0,73,5)
+        Enabled = False
+        Tag = "locks"
+        Expand = True
+        Arrangement = Arrange.Horizontal
+        Invert = True
+      }
+      { pnlSelectFile Panel
+        MoveScaled(82,0,36,5)
+        Tag = "selectfile"
+        Arrangement = Arrange.Horizontal
+        Invert = True
+      }
     }
   }
   { pnlRight Panel
-    MoveScaled(119,3,5,87)
+    MoveScaled(134,1,5,87)
+    Visible = False
     Arrangement = Arrange.Vertical
     { pnlFile2 Panel
       MoveScaled(0,0,5,5)

@@ -2,6 +2,9 @@
 # Planix
 Planix is a computer-aided design program that aims to use the LibreDWG library to read and write dwg files.
 
+## Screen shots
+![Layers](planix-layers.png)
+
 ## Features
 - Read dwg files and show its information y a friendly data interface called data explorer.
 

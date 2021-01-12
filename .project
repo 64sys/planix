@@ -1,12 +1,19 @@
 # Gambas Project File 3.0
-Title=Technical drawing application
-Startup=FMain
+Title=Planix
+Startup=Starter
+Icon=svg/logo.svg
 Version=0.0.1
 Component=gb.image
 Component=gb.gui
 Component=gb.form
+Component=gb.db
+Component=gb.desktop
 Component=gb.settings
 Component=gb.form.mdi
+Component=gb.logging
+Component=gb.pcre
+Component=gb.util.web
+Component=gb.xml
 Description="Technical drawing application"
 Authors="Belmotek"
 TabSize=2

@@ -1,11 +1,44 @@
 ' Gambas class file
 
+Public cDrawings As New Collection
+Private hdxLayers As String[]
+Private nmxLayers As String[]
+
+Public ColorsRGB As New String[]    '' Colors lists each item as r,g,b string
+
+Public SelectingColor As Boolean    '' Color selection flag
+Public CurrentColor As Integer
+
+Public SelectingLtype As Boolean    '' Selecting Linetype
+Public CurrentLtype As Integer
+
+Public SelectingWidht As Boolean    '' Width selection flag
+Public CurrentWidth As Integer      '' Selected Width
+
+Public EditingText As Boolean       '' Editing Text value
+Public CurrentText As String
+
 Public Sub Form_Open()
+
+  Dim svg As String
+  Dim fx As String[]
+  Dim f As String
 
   m1(pnlToolsFile)
   m1(pnlFile2)
+  ' m1(pnlSelectFile)
   m1(pnlToolsEntities)
   m1(pnlToolsDimensions)
+
+  svg = dsk.Contrary("./svg/logo.svg", "#0066b3")
+  Me.Icon = Image.FromString(svg).Stretch(64, 64).Picture
+  pnlData.Layout = [1, 4]
+
+  fx = fil.ScanFiles("/home/bmk/Documentos/cad-sample", ["[dD][wW][gG]"])
+  For Each f In fx
+    Print f
+    OpenFile(f)
+  Next
 
 End
 
@@ -19,6 +52,8 @@ Private Sub m1(cnr As Container)
   Dim svg As String
   Dim sPic As String
   Dim spr As Spring
+  Dim sType As String
+  Dim cbo As ComboBox
 
   btx.Clear
   shx.Clear
@@ -42,7 +77,9 @@ Private Sub m1(cnr As Container)
       btx = ["~", "dimension_linear", "dimension_aligned", "arc_dimension", "dimension_ang3pt", "dimension_radius", "dimension_diameter", "large_radial_dimension", "dimension_ordinate", "~"]
       shx = ["~", "dimension_linear", "dimension_aligned", "arc_dimension", "dimension_ang3pt", "dimension_radius", "dimension_diameter", "large_radial_dimension", "dimension_ordinate", "~"]
 
-      'Case "locks"
+      ' Case "selectfile"
+      '   btx = ["select", "~"]
+      '   shx = [("Select file"), "~"]
 
   End Select
 
@@ -52,28 +89,44 @@ Private Sub m1(cnr As Container)
         spr = New Spring(cnr)
       Case Else
 
-        tob = New ToolButton(cnr) As "mFile"
         Select cnr.Tag
           Case "file", "file2"
+            sType = "ToolButton"
             pic = Stock["32/" & btx[i]]
+            ' Case "selectfile"
+            '   sType = "ComboBox"
+
           Case Else
+            sType = "ToolButton"
             sPic = "./svg/" & cnr.tag &/ btx[i] & ".svg"
-            If Application.DarkTheme Then
-              svg = Replace(File.Load(sPic), "#0066b3;", "#eeeeee;")
-            Else
-              svg = Replace(File.Load(sPic), "#0066b3;", "#000000;")
-            Endif
+            svg = dsk.Contrary(sPic, "#0066b3")
             pic = Image.FromString(svg).Stretch(32, 32).Picture
         End Select
 
-        With tob
-          .Name = btx[i]
-          .H = 35
-          .W = 35
-          .Tag = btx[i]
-          .Tooltip = shx[i]
-          .Picture = pic
-        End With
+        Select sType
+          Case "ToolButton"
+            tob = New ToolButton(cnr) As "mFile"
+            With tob
+              .Name = btx[i]
+              .H = 35
+              .W = 35
+              .Tag = btx[i]
+              .Tooltip = shx[i]
+              .Picture = pic
+            End With
+            ' Case "ComboBox"
+            '   cbo = New ComboBox(cnr) As "mFile"
+            '   With cbo
+            '     .Name = btx[i]
+            '     .H = 35
+            '     .W = 35
+            '     .Expand = True
+            '     .Enabled = True
+            '     .Tooltip = shx[i]
+            '   End With
+
+        End Select
+
     End Select
   Next
 
@@ -81,9 +134,23 @@ End
 
 Public Sub mFile_Click()
 
+  Dim fx As String[]
+  Dim f As String
+  'Dim cDwg As New Collection
+
   Select Last.tag
     Case "new"
+
     Case "open"
+      fx = dsk.FileChooser(Settings["LastDir", User.Home], ["[dD][wW][gG]"])
+      If fx.Count > 0 Then
+        For Each f In fx
+          If Stat(f).Type = gb.File And Lower(File.Ext(f)) = "dwg" Then
+            OpenFile(f)
+          Endif
+        Next
+      Endif
+
     Case "save"
     Case "save-as"
     Case "upload"
@@ -98,6 +165,386 @@ Public Sub mFile_Click()
       Else
         Me.Maximized = True
         Me.Border = False
+      Endif
+  End Select
+
+End
+
+Private Sub OpenFile(sFile As String)
+
+  Dim cDwg As New Collection
+
+  cDwg.Clear
+  cDwg = dwg.Raw(sFile)
+  If cDwg.Count > 0 Then
+    cDrawings.Add(cDwg.Copy(), sFile)
+    Me.Text = sFile
+    'ComboBox1.Add(sFile)
+    'ComboBox1.Text = sFile
+    RefreshTree()
+  Endif
+
+End
+
+Private Sub RefreshTree()
+
+  Dim cDwg As Collection
+  Dim cObj As Collection
+  Dim sec As String
+  Dim sVsn As String
+  Dim sPic As String
+  Dim pic As Picture
+
+  For Each cDwg In cDrawings
+    If TreeView1.Exist(cDrawings.Key) = False Then
+      If cDwg.Exist("FILEHEADER") Then
+        sVsn = dwg.DWGVersion(cDwg["FILEHEADER"]["version"])
+        TreeView1.Add(cDrawings.Key, File.BaseName(cDrawings.Key) & " [" & sVsn & "]")
+      Else
+        TreeView1.Add(cDrawings.Key, File.BaseName(cDrawings.Key))
+      Endif
+
+      If cDwg.Count > 0 Then
+        For Each sec In ["LAYERS", "BLOCKS", "OBJECTS", "ENTITIES", "DIMSTYLE", "LTYPES", "NESTED", "CLASSES"]
+          '"HEADER", "THUMBNAILIMAGE", "Template", "AuxHeader"
+          If cDwg.Exist(sec) Then
+            sPic = "./svg/" &/ Lower(sec) & ".svg"
+            If Exist(sPic) Then
+              pic = Image.FromString(dsk.Contrary(sPic, "#0066b3")).Stretch(16, 16).Picture
+              TreeView1.Add(cDrawings.Key & "\t" & sec, strings.Title(sec), pic, cDrawings.Key)
+            Else
+              TreeView1.Add(cDrawings.Key & "\t" & sec, strings.Title(sec),, cDrawings.Key)
+            Endif
+
+            For Each cObj In cDwg[sec]
+              Select sec
+                Case "OBJECTS"
+                  If TreeView1.Exist(cDrawings.Key & "\t" & sec & "\t" & cObj["object"]) = False Then
+                    TreeView1.Add(cDrawings.Key & "\t" & sec & "\t" & cObj["object"], cObj["object"],, cDrawings.Key & "\t" & sec)
+                  Endif
+                Case "ENTITIES"
+                  If TreeView1.Exist(cDrawings.Key & "\t" & sec & "\t" & cObj["entity"]) = False Then
+                    If InStr(Lower(cObj["entity"]), "dimension") > 0 Then
+                      sPic = "./svg/" & "dimensions" &/ Lower(cObj["entity"]) & ".svg"
+                    Else
+                      sPic = "./svg/" & Lower(sec) &/ Lower(cObj["entity"]) & ".svg"
+                    Endif
+
+                    If Exist(sPic) Then
+                      pic = Image.FromString(dsk.Contrary(sPic, "#0066b3")).Stretch(16, 16).Picture
+                      TreeView1.Add(cDrawings.Key & "\t" & sec & "\t" & cObj["entity"], cObj["entity"], pic, cDrawings.Key & "\t" & sec)
+                    Else
+                      TreeView1.Add(cDrawings.Key & "\t" & sec & "\t" & cObj["entity"], cObj["entity"],, cDrawings.Key & "\t" & sec)
+                    Endif
+
+                  Endif
+                  'Case "LAYERS"
+                  '  If TreeView1.Exist(cDrawings.Key & "\t" & sec & "\t" & cObj["name"]) = False Then
+                  '    TreeView1.Add(cDrawings.Key & "\t" & sec & "\t" & cObj["name"], cObj["name"],, cDrawings.Key & "\t" & sec)
+                  '  Endif
+              End Select
+
+            Next
+          Endif
+        Next
+      Endif
+    Endif
+    'TreeView1[cDrawings.Key].Expanded = True
+  Next
+  'Endif
+
+End
+
+Public Sub ComboBox1_Activate()
+
+  RefreshTree()
+
+End
+
+Public Sub TreeView1_Select()
+
+  Dim i As Integer
+  Dim stx As New String[]
+  Dim sObject As String
+  Dim sFile As String
+  Dim lay As Variant
+  'Dim hdxLayers As String[]
+  Dim cCur As Collection
+  Dim r As Integer
+  Dim c As Integer
+  Dim j As Integer
+  Dim pic As Picture
+  Dim sColor As String
+  Dim svg As String
+  Dim red As Integer
+  Dim green As Integer
+  Dim blue As Integer
+
+  TableView1.Clear
+  TableView1.Columns.Count = 0
+  TableView1.Rows.Count = 0
+
+  If InStr(TreeView1.Key, "\t") > 0 Then
+    stx = Split(TreeView1.Key, "\t")
+  Endif
+  For i = 0 To stx.Max
+    If stx.Count > 1 Then
+      sFile = stx[0]
+      sObject = stx[1]
+      Select sObject
+        Case "LAYERS"
+          hdxLayers = ["id", ("Name"), ("Show"), ("Frozen"), ("Locked"), ("Color"), ("Style"), ("Weight"), ("Print")]
+          nmxLayers = ["id", "name", "show", "frozen", "locked", "color", "style", "weight", "print"]
+          TableView1.Columns.Count = 9
+          TableView1.Columns[0].Width = 0
+          TableView1.Columns[0].Expand = False
+          For j = 1 To 8
+            TableView1.Columns[j].Width = -1
+          Next
+          TableView1.Columns[1].Expand = True
+
+          For c = 0 To hdxLayers.Max
+            TableView1.Columns[c].Title = hdxLayers[c]
+          Next
+          cCur = cDrawings[sFile]["LAYERS"]
+          TableView1.Rows.Count = cCur.Count
+          r = 0
+          For Each lay In cCur
+            TableView1[r, 0].Text = lay["handle"] '0
+            TableView1[r, 1].Text = lay["name"]   '1
+            '---------------
+            If lay["show"] Then
+              pic = Image.FromString(dsk.Contrary("./svg/layers/lamp-on.svg", "#0066b3")).Stretch(16, 16).Picture
+            Else
+              pic = Image.FromString(dsk.Contrary("./svg/layers/lamp-off.svg", "#0066b3")).Stretch(16, 16).Picture
+            Endif
+            'TableView1[r, 2].Text = lay["show"]   '2
+            TableView1[r, 2].Picture = pic
+            TableView1[r, 2].Alignment = Align.Center
+            '---------------
+            If lay["frozen"] Then
+              pic = Image.FromString(dsk.Contrary("./svg/layers/frozen.svg", "#0066b3")).Stretch(16, 16).Picture
+            Else
+              pic = Image.FromString(dsk.Contrary("./svg/layers/liquid.svg", "#0066b3")).Stretch(16, 16).Picture
+            Endif
+            TableView1[r, 3].Picture = pic
+            TableView1[r, 3].Alignment = Align.Center
+            '---------------
+            If lay["locked"] Then
+              pic = Image.FromString(dsk.Contrary("./svg/layers/lock-on.svg", "#0066b3")).Stretch(16, 16).Picture
+            Else
+              pic = Image.FromString(dsk.Contrary("./svg/layers/lock-off.svg", "#0066b3")).Stretch(16, 16).Picture
+            Endif
+            TableView1[r, 4].Picture = pic
+            TableView1[r, 4].Alignment = Align.Center
+            '---------------
+            pic = AciPic(["./svg/layers/pentagon.svg", lay["color"], "#0066b3"])
+            TableView1[r, 5].Picture = pic
+            TableView1[r, 5].Text = lay["color"]   '5
+            '---------------
+            TableView1[r, 6].Text = lay["style"]   '6
+            TableView1[r, 7].Text = lay["weight"]   '7
+            '---------------
+            If lay["print"] Then
+              pic = Image.FromString(dsk.Contrary("./svg/layers/print-on.svg", "#0066b3")).Stretch(16, 16).Picture
+            Else
+              pic = Image.FromString(dsk.Contrary("./svg/layers/print-off.svg", "#0066b3")).Stretch(16, 16).Picture
+            Endif
+            TableView1[r, 8].Picture = pic
+            TableView1[r, 8].Alignment = Align.Center
+
+            Inc r
+          Next
+      End Select
+    Endif
+    Print stx[i]
+  Next
+
+End
+
+'' Adapt a copy of an svg file changing the colors
+'' <ul>
+'' <li>0 - File </li><li>1 - ACI Color </li><li>2 - Color to be replaced in the svg file </li>
+'' </ul>
+Private Function AciPic(vrx As Variant[]) As Picture
+
+  Dim svg As String
+  Dim sColor As String
+  Dim clx As Variant[] 'String[]
+  Dim pic As Picture
+  Dim rColor As String
+
+  If Exist(vrx[0]) Then
+    svg = dsk.Contrary(vrx[0], vrx[2]) ' "#0066b3"
+    clx = Starter.ColorsRGB[vrx[1]]
+
+    sColor = "#" & Hex(Color.RGB(clx[0], clx[1], clx[2]), 6)
+
+    Select vrx[1] 'lay["color"]
+      Case 7
+        If Application.DarkTheme Then
+          svg = Replace(svg, "#000000;", "#eeeeee;")
+        Endif
+      Case Else
+        svg = Replace(svg, "#000000;", sColor & ";")
+
+    End Select
+    pic = Image.FromString(svg).Stretch(16, 16).Picture
+  Endif
+
+  Return pic
+
+End
+
+Public Sub TableView1_Click()
+
+  Dim mode As Boolean
+  Dim pic As Picture
+  Dim FClr As FColors
+  'Dim r As Integer
+  'Dim g As Integer
+  'Dim b As Integer
+  Dim x As Integer
+  Dim y As Integer
+
+  Dim lst As FLtypes
+  Dim wts As FWeights
+  Dim vrx As Variant[]
+  Dim img As Image
+
+  Select nmxLayers[TableView1.Column]
+
+    Case "show"
+      Select TableView1[TableView1.Row, TableView1.Column].WordWrap
+        Case False
+          mode = True
+          pic = Image.FromString(dsk.Contrary("./svg/layers/lamp-on.svg", "#0066b3")).Stretch(16, 16).Picture
+        Case True
+          mode = False
+          pic = Image.FromString(dsk.Contrary("./svg/layers/lamp-off.svg", "#0066b3")).Stretch(16, 16).Picture
+      End Select
+      TableView1[TableView1.Row, TableView1.Column].WordWrap = mode
+      TableView1[TableView1.Row, TableView1.Column].Picture = pic
+
+    Case "frozen"
+      Select TableView1[TableView1.Row, TableView1.Column].WordWrap
+        Case False
+          mode = True
+          pic = Image.FromString(dsk.Contrary("./svg/layers/frozen.svg", "#0066b3")).Stretch(16, 16).Picture
+        Case True
+          mode = False
+          pic = Image.FromString(dsk.Contrary("./svg/layers/liquid.svg", "#0066b3")).Stretch(16, 16).Picture
+      End Select
+      TableView1[TableView1.Row, TableView1.Column].WordWrap = mode
+      TableView1[TableView1.Row, TableView1.Column].Picture = pic
+
+    Case "locked"
+      Select TableView1[TableView1.Row, TableView1.Column].WordWrap
+        Case False
+          mode = True
+          pic = Image.FromString(dsk.Contrary("./svg/layers/lock-on.svg", "#0066b3")).Stretch(16, 16).Picture
+        Case True
+          mode = False
+          pic = Image.FromString(dsk.Contrary("./svg/layers/lock-off.svg", "#0066b3")).Stretch(16, 16).Picture
+      End Select
+      TableView1[TableView1.Row, TableView1.Column].WordWrap = mode
+      TableView1[TableView1.Row, TableView1.Column].Picture = pic
+
+    Case "print"
+      Select TableView1[TableView1.Row, TableView1.Column].WordWrap
+        Case False
+          TableView1[TableView1.Row, TableView1.Column].WordWrap = True
+          pic = Image.FromString(dsk.Contrary("./svg/layers/print-on.svg", "#0066b3")).Stretch(16, 16).Picture
+        Case True
+          TableView1[TableView1.Row, TableView1.Column].WordWrap = False
+          pic = Image.FromString(dsk.Contrary("./svg/layers/print-off.svg", "#0066b3")).Stretch(16, 16).Picture
+      End Select
+      TableView1[TableView1.Row, TableView1.Column].Picture = pic
+
+    Case "name"
+      TableView1.Edit
+
+    Case "color"
+
+      If SelectingColor = False Then
+        FClr = New FColors([Me.ScreenX + TableView1.Current.X, Me.ScreenY], Me)
+        FClr.Border = False
+        FClr.Stacking = Window.Above
+        FClr.Show()
+        Do
+          If SelectingColor = True Then
+            'r = CInt(Split(Starter.ColorsRGB[CurrentColor], ",")[0])
+            'g = CInt(Split(Starter.ColorsRGB[CurrentColor], ",")[1])
+            'b = CInt(Split(Starter.ColorsRGB[CurrentColor], ",")[2])
+
+            pic = AciPic(["./svg/layers/pentagon.svg", CurrentColor, "#0066b3"])
+            TableView1[TableView1.Row, TableView1.Column].Text = CurrentColor
+            TableView1[TableView1.Row, TableView1.Column].Picture = pic
+
+            Print CurrentColor
+            SelectingColor = False
+            Break
+          Else
+            Wait 0.01
+          Endif
+        Loop
+      Endif
+
+    Case "style"
+
+      If SelectingLtype = False Then
+        x = TableView1[TableView1.Row, TableView1.Column].X + TableView1.ScreenX
+        y = TableView1[TableView1.Row, TableView1.Column].Y + TableView1.ScreenY + TableView1.Rows.Height * 2
+
+        lst = New FLtypes(Starter.cStyles, [x, y], Me)
+        lst.Stacking = Window.Above
+        lst.Run()
+        Do
+          If SelectingLtype = True Then
+
+            For Each vrx In Starter.cStyles
+              If CInt(Starter.cStyles.Key) = CurrentLtype Then
+                TableView1[TableView1.Row, TableView1.Column].Text = vrx[2]
+                Break
+              Else
+                TableView1[TableView1.Row, TableView1.Column].Text = ""
+              Endif
+            Next
+
+            SelectingLtype = False
+            Break
+          Else
+            Wait 0.1
+          Endif
+        Loop
+      Endif
+
+    Case "width"
+      If SelectingWidht = False Then
+        x = TableView1[TableView1.Row, TableView1.Column].X + TableView1.ScreenX
+        y = TableView1[TableView1.Row, TableView1.Column].Y + TableView1.ScreenY + TableView1.Rows.Height * 2
+
+        wts = New FWeights(Starter.cWeights, [x, y], Me)
+        wts.Stacking = Window.Above
+        wts.Run()
+        Do
+          If SelectingWidht = True Then
+
+            For Each vrx In Starter.cWeights
+              If CInt(Starter.cWeights.Key) = CurrentWidth Then
+                TableView1[TableView1.Row, TableView1.Column].Text = vrx[0]
+                Break
+              Else
+                TableView1[TableView1.Row, TableView1.Column].Text = ""
+              Endif
+            Next
+
+            SelectingWidht = False
+            Break
+          Else
+            Wait 0.1
+          Endif
+        Loop
       Endif
   End Select
 
