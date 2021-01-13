@@ -25,14 +25,14 @@ Public Sub Form_Open()
   Dim f As String
 
   m1(pnlToolsFile)
-  m1(pnlFile2)
+  'm1(pnlFile2)
   ' m1(pnlSelectFile)
   m1(pnlToolsEntities)
   m1(pnlToolsDimensions)
 
   svg = dsk.Contrary("./svg/logo.svg", "#0066b3")
   Me.Icon = Image.FromString(svg).Stretch(64, 64).Picture
-  pnlData.Layout = [1, 4]
+  HSplitData.Layout = [1, 4]
 
   fx = fil.ScanFiles(User.Home &/ "Documentos/cad-sample", ["[dD][wW][gG]"])
   For Each f In fx
@@ -53,19 +53,19 @@ Private Sub m1(cnr As Container)
   Dim sPic As String
   Dim spr As Spring
   Dim sType As String
-  Dim cbo As ComboBox
+  'Dim cbo As ComboBox
 
   btx.Clear
   shx.Clear
 
   Select cnr.Tag
     Case "file"
-      btx = ["~", "new", "open", "save", "save-as", "upload", "download", "print", "fullscreen", "~"]
-      shx = ["~", ("New"), ("Open"), ("Save"), ("Save as"), ("Import"), ("Export"), ("Print"), "Full screen", "~"]
+      btx = ["indent", "~", "new", "open", "save", "save-as", "upload", "download", "print", "fullscreen", "~", "quit"]
+      shx = ["Menu", "~", ("New"), ("Open"), ("Save"), ("Save as"), ("Import"), ("Export"), ("Print"), "Full screen", "~", ("Quit")]
 
-    Case "file2"
-      btx = ["quit", "~"]
-      shx = [("Quit"), "~"]
+      'Case "file2"
+      '  btx = ["quit", "~"]
+      '  shx = [("Quit"), "~"]
 
     Case "entities"
       btx = ["line", "lwpolyline", "spline", "text", "mtext", "arc", "circle", "ellipse", "block", "attrib", "hatch", "insert", "leader", "point", "polygon", "rectangle", "solid", "~"]
@@ -139,6 +139,9 @@ Public Sub mFile_Click()
   'Dim cDwg As New Collection
 
   Select Last.tag
+    Case "indent"
+      pnlMenu.Visible = Not pnlMenu.Visible
+
     Case "new"
 
     Case "open"
@@ -178,9 +181,6 @@ Private Sub OpenFile(sFile As String)
   cDwg = dwg.Raw(sFile)
   If cDwg.Count > 0 Then
     cDrawings.Add(cDwg.Copy(), sFile)
-    Me.Text = sFile
-    'ComboBox1.Add(sFile)
-    'ComboBox1.Text = sFile
     RefreshTree()
   Endif
 
@@ -263,22 +263,23 @@ End
 
 Public Sub TreeView1_Select()
 
-  Dim i As Integer
+  'Dim i As Integer
   Dim stx As New String[]
   Dim sObject As String
   Dim sFile As String
   Dim lay As Variant
   'Dim hdxLayers As String[]
-  Dim cCur As Collection
+  Dim cCur As Collection            '' Layers on the current file
+  Dim cVar As Collection            '' Variables on the current file
   Dim r As Integer
   Dim c As Integer
   Dim j As Integer
   Dim pic As Picture
-  Dim sColor As String
-  Dim svg As String
-  Dim red As Integer
-  Dim green As Integer
-  Dim blue As Integer
+  'Dim sColor As String
+  'Dim svg As String
+  'Dim red As Integer
+  'Dim green As Integer
+  'Dim blue As Integer
 
   TableView1.Clear
   TableView1.Columns.Count = 0
@@ -286,79 +287,105 @@ Public Sub TreeView1_Select()
 
   If InStr(TreeView1.Key, "\t") > 0 Then
     stx = Split(TreeView1.Key, "\t")
+    sFile = stx[0]
+    cVar = cDrawings[sFile]["HEADER"]
+    sObject = stx[1]
+    Me.Text = File.Name(sFile) & "::" & sObject
+    Reorganize("data")
+    Select sObject
+      Case "LAYERS"
+        hdxLayers = ["id", ("Status"), ("Name"), ("Show"), ("Frozen"), ("Locked"), ("Color"), ("Style"), ("Weight"), ("Print")]
+        nmxLayers = ["id", "status", "name", "show", "frozen", "locked", "color", "style", "weight", "print"]
+        TableView1.Columns.Count = 10
+        TableView1.Columns[2].Expand = True
+        For j = 3 To 9
+          TableView1.Columns[j].Width = -1
+        Next
+
+        For c = 0 To hdxLayers.Max
+          TableView1.Columns[c].Title = hdxLayers[c]
+        Next
+
+        cCur = cDrawings[sFile]["LAYERS"]
+        TableView1.Rows.Count = cCur.Count
+        r = 0
+        For Each lay In cCur
+          TableView1[r, 0].Text = lay["handle"] '0
+
+          If cVar["CLAYER"][cVar["CLAYER"].Max] = lay["handle"] Then
+            pic = Image.FromString(dsk.Contrary("./svg/layers/layer-current.svg", "#0066b3")).Stretch(16, 16).Picture
+            TableView1[r, 1].WordWrap = True
+          Else
+            pic = Image.FromString(dsk.Contrary("./svg/layers/layer.svg", "#0066b3")).Stretch(16, 16).Picture
+            TableView1[r, 1].WordWrap = False
+          Endif
+          TableView1[r, 1].Picture = pic
+          TableView1[r, 1].Alignment = Align.Center
+          '---------------
+          TableView1[r, 2].Text = lay["name"]   '1
+          '---------------
+          If lay["show"] Then
+            pic = Image.FromString(dsk.Contrary("./svg/layers/lamp-on.svg", "#0066b3")).Stretch(16, 16).Picture
+            TableView1[r, 3].WordWrap = True
+          Else
+            pic = Image.FromString(dsk.Contrary("./svg/layers/lamp-off.svg", "#0066b3")).Stretch(16, 16).Picture
+            TableView1[r, 3].WordWrap = False
+          Endif
+          TableView1[r, 3].Picture = pic
+          TableView1[r, 3].Alignment = Align.Center
+          '---------------
+          If lay["frozen"] Then
+            pic = Image.FromString(dsk.Contrary("./svg/layers/frozen.svg", "#0066b3")).Stretch(16, 16).Picture
+            TableView1[r, 4].WordWrap = True
+          Else
+            pic = Image.FromString(dsk.Contrary("./svg/layers/liquid.svg", "#0066b3")).Stretch(16, 16).Picture
+            TableView1[r, 4].WordWrap = False
+          Endif
+          TableView1[r, 4].Picture = pic
+          TableView1[r, 4].Alignment = Align.Center
+          '---------------
+          If lay["locked"] Then
+            pic = Image.FromString(dsk.Contrary("./svg/layers/lock-on.svg", "#0066b3")).Stretch(16, 16).Picture
+            TableView1[r, 5].WordWrap = True
+          Else
+            pic = Image.FromString(dsk.Contrary("./svg/layers/lock-off.svg", "#0066b3")).Stretch(16, 16).Picture
+            TableView1[r, 5].WordWrap = False
+          Endif
+          TableView1[r, 5].Picture = pic
+          TableView1[r, 5].Alignment = Align.Center
+          '---------------
+          pic = AciPic(["./svg/layers/pentagon.svg", lay["color"], "#0066b3"])
+          TableView1[r, 6].Picture = pic
+          TableView1[r, 6].Text = lay["color"]   '5
+          '---------------
+          TableView1[r, 7].Text = lay["style"]   '6
+          TableView1[r, 7].Alignment = Align.Center
+
+          TableView1[r, 8].Text = lay["weight"]   '7
+          TableView1[r, 8].Alignment = Align.Center
+          '---------------
+          If lay["print"] Then
+            pic = Image.FromString(dsk.Contrary("./svg/layers/print-on.svg", "#0066b3")).Stretch(16, 16).Picture
+            TableView1[r, 9].WordWrap = True
+          Else
+            pic = Image.FromString(dsk.Contrary("./svg/layers/print-off.svg", "#0066b3")).Stretch(16, 16).Picture
+            TableView1[r, 9].WordWrap = False
+          Endif
+          TableView1[r, 9].Picture = pic
+          TableView1[r, 9].Alignment = Align.Center
+
+          Inc r
+        Next
+        TableView1.Columns[0].Width = 0
+    End Select
+
+  Else
+    sFile = TreeView1.Key
+    Me.Text = File.Name(sFile)
+    cVar = cDrawings[sFile]["HEADER"]
+    sObject = "DRAWING"
+    Reorganize("drawing")
   Endif
-  For i = 0 To stx.Max
-    If stx.Count > 1 Then
-      sFile = stx[0]
-      sObject = stx[1]
-      Select sObject
-        Case "LAYERS"
-          hdxLayers = ["id", ("Name"), ("Show"), ("Frozen"), ("Locked"), ("Color"), ("Style"), ("Weight"), ("Print")]
-          nmxLayers = ["id", "name", "show", "frozen", "locked", "color", "style", "weight", "print"]
-          TableView1.Columns.Count = 9
-          TableView1.Columns[0].Width = 0
-          TableView1.Columns[0].Expand = False
-          For j = 1 To 8
-            TableView1.Columns[j].Width = -1
-          Next
-          TableView1.Columns[1].Expand = True
-
-          For c = 0 To hdxLayers.Max
-            TableView1.Columns[c].Title = hdxLayers[c]
-          Next
-          cCur = cDrawings[sFile]["LAYERS"]
-          TableView1.Rows.Count = cCur.Count
-          r = 0
-          For Each lay In cCur
-            TableView1[r, 0].Text = lay["handle"] '0
-            TableView1[r, 1].Text = lay["name"]   '1
-            '---------------
-            If lay["show"] Then
-              pic = Image.FromString(dsk.Contrary("./svg/layers/lamp-on.svg", "#0066b3")).Stretch(16, 16).Picture
-            Else
-              pic = Image.FromString(dsk.Contrary("./svg/layers/lamp-off.svg", "#0066b3")).Stretch(16, 16).Picture
-            Endif
-            'TableView1[r, 2].Text = lay["show"]   '2
-            TableView1[r, 2].Picture = pic
-            TableView1[r, 2].Alignment = Align.Center
-            '---------------
-            If lay["frozen"] Then
-              pic = Image.FromString(dsk.Contrary("./svg/layers/frozen.svg", "#0066b3")).Stretch(16, 16).Picture
-            Else
-              pic = Image.FromString(dsk.Contrary("./svg/layers/liquid.svg", "#0066b3")).Stretch(16, 16).Picture
-            Endif
-            TableView1[r, 3].Picture = pic
-            TableView1[r, 3].Alignment = Align.Center
-            '---------------
-            If lay["locked"] Then
-              pic = Image.FromString(dsk.Contrary("./svg/layers/lock-on.svg", "#0066b3")).Stretch(16, 16).Picture
-            Else
-              pic = Image.FromString(dsk.Contrary("./svg/layers/lock-off.svg", "#0066b3")).Stretch(16, 16).Picture
-            Endif
-            TableView1[r, 4].Picture = pic
-            TableView1[r, 4].Alignment = Align.Center
-            '---------------
-            pic = AciPic(["./svg/layers/pentagon.svg", lay["color"], "#0066b3"])
-            TableView1[r, 5].Picture = pic
-            TableView1[r, 5].Text = lay["color"]   '5
-            '---------------
-            TableView1[r, 6].Text = lay["style"]   '6
-            TableView1[r, 7].Text = lay["weight"]   '7
-            '---------------
-            If lay["print"] Then
-              pic = Image.FromString(dsk.Contrary("./svg/layers/print-on.svg", "#0066b3")).Stretch(16, 16).Picture
-            Else
-              pic = Image.FromString(dsk.Contrary("./svg/layers/print-off.svg", "#0066b3")).Stretch(16, 16).Picture
-            Endif
-            TableView1[r, 8].Picture = pic
-            TableView1[r, 8].Alignment = Align.Center
-
-            Inc r
-          Next
-      End Select
-    Endif
-    Print stx[i]
-  Next
 
 End
 
@@ -372,7 +399,7 @@ Private Function AciPic(vrx As Variant[]) As Picture
   Dim sColor As String
   Dim clx As Variant[] 'String[]
   Dim pic As Picture
-  Dim rColor As String
+  'Dim rColor As String
 
   If Exist(vrx[0]) Then
     svg = dsk.Contrary(vrx[0], vrx[2]) ' "#0066b3"
@@ -398,66 +425,58 @@ End
 
 Public Sub TableView1_Click()
 
-  Dim mode As Boolean
+  'Dim mode As Boolean
   Dim pic As Picture
   Dim FClr As FColors
-  'Dim r As Integer
-  'Dim g As Integer
-  'Dim b As Integer
   Dim x As Integer
   Dim y As Integer
-
   Dim lst As FLtypes
   Dim wts As FWeights
   Dim vrx As Variant[]
-  Dim img As Image
+  'Dim img As Image
 
   Select nmxLayers[TableView1.Column]
-
     Case "show"
       Select TableView1[TableView1.Row, TableView1.Column].WordWrap
         Case False
-          mode = True
           pic = Image.FromString(dsk.Contrary("./svg/layers/lamp-on.svg", "#0066b3")).Stretch(16, 16).Picture
+          TableView1[TableView1.Row, TableView1.Column].WordWrap = True
         Case True
-          mode = False
           pic = Image.FromString(dsk.Contrary("./svg/layers/lamp-off.svg", "#0066b3")).Stretch(16, 16).Picture
+          TableView1[TableView1.Row, TableView1.Column].WordWrap = False
       End Select
-      TableView1[TableView1.Row, TableView1.Column].WordWrap = mode
       TableView1[TableView1.Row, TableView1.Column].Picture = pic
 
     Case "frozen"
       Select TableView1[TableView1.Row, TableView1.Column].WordWrap
         Case False
-          mode = True
           pic = Image.FromString(dsk.Contrary("./svg/layers/frozen.svg", "#0066b3")).Stretch(16, 16).Picture
+          TableView1[TableView1.Row, TableView1.Column].WordWrap = True
         Case True
-          mode = False
           pic = Image.FromString(dsk.Contrary("./svg/layers/liquid.svg", "#0066b3")).Stretch(16, 16).Picture
+          TableView1[TableView1.Row, TableView1.Column].WordWrap = False
       End Select
-      TableView1[TableView1.Row, TableView1.Column].WordWrap = mode
       TableView1[TableView1.Row, TableView1.Column].Picture = pic
 
     Case "locked"
       Select TableView1[TableView1.Row, TableView1.Column].WordWrap
         Case False
-          mode = True
           pic = Image.FromString(dsk.Contrary("./svg/layers/lock-on.svg", "#0066b3")).Stretch(16, 16).Picture
+          TableView1[TableView1.Row, TableView1.Column].WordWrap = True
         Case True
-          mode = False
+          TableView1[TableView1.Row, TableView1.Column].WordWrap = False
           pic = Image.FromString(dsk.Contrary("./svg/layers/lock-off.svg", "#0066b3")).Stretch(16, 16).Picture
       End Select
-      TableView1[TableView1.Row, TableView1.Column].WordWrap = mode
       TableView1[TableView1.Row, TableView1.Column].Picture = pic
 
     Case "print"
       Select TableView1[TableView1.Row, TableView1.Column].WordWrap
-        Case False
-          TableView1[TableView1.Row, TableView1.Column].WordWrap = True
-          pic = Image.FromString(dsk.Contrary("./svg/layers/print-on.svg", "#0066b3")).Stretch(16, 16).Picture
         Case True
-          TableView1[TableView1.Row, TableView1.Column].WordWrap = False
           pic = Image.FromString(dsk.Contrary("./svg/layers/print-off.svg", "#0066b3")).Stretch(16, 16).Picture
+          TableView1[TableView1.Row, TableView1.Column].WordWrap = False
+        Case Else
+          pic = Image.FromString(dsk.Contrary("./svg/layers/print-on.svg", "#0066b3")).Stretch(16, 16).Picture
+          TableView1[TableView1.Row, TableView1.Column].WordWrap = True
       End Select
       TableView1[TableView1.Row, TableView1.Column].Picture = pic
 
@@ -546,6 +565,48 @@ Public Sub TableView1_Click()
           Endif
         Loop
       Endif
+  End Select
+
+End
+
+Public Sub TableView1_DblClick()
+
+  Dim pic As Picture
+  Dim iSkip As Integer
+  Dim r As Integer
+
+  iSkip = TableView1.Row
+
+  Select nmxLayers[TableView1.Column]
+    Case "status"
+      Select TableView1[TableView1.Row, TableView1.Column].WordWrap
+        Case False
+          pic = Image.FromString(dsk.Contrary("./svg/layers/layer-current.svg", "#0066b3")).Stretch(16, 16).Picture
+          TableView1[TableView1.Row, TableView1.Column].Picture = pic
+          TableView1[TableView1.Row, TableView1.Column].WordWrap = True
+          For r = 0 To TableView1.Rows.Max
+            If r <> iSkip Then
+              pic = Image.FromString(dsk.Contrary("./svg/layers/layer.svg", "#0066b3")).Stretch(16, 16).Picture
+              TableView1[r, TableView1.Column].Picture = pic
+              TableView1[r, TableView1.Column].WordWrap = False
+            Endif
+          Next
+      End Select
+  End Select
+
+End
+
+Private Sub Reorganize(sMode As String)
+
+  Select sMode
+    Case "drawing"
+      pnlData.Visible = False
+      pnlDrawing.Visible = True
+
+    Case "data"
+      pnlData.Visible = True
+      pnlDrawing.Visible = False
+
   End Select
 
 End

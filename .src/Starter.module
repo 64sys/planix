@@ -18,7 +18,7 @@ Public cEntities As New Collection   '' DWG Entities list
 
 Public Sub Main()
 
-  Dim i As Integer
+  '  Dim i As Integer
 
   SetDirsAndFiles()
   SetAppEventsLog()
@@ -92,8 +92,8 @@ End
 
 Private Sub SetDirsAndFiles()
 
-  Dim i As Integer
-  Dim thx As New String[]           '' Lista de temas del editor interno
+  'Dim i As Integer
+  'Dim thx As New String[]           '' Lista de temas del editor interno
 
   sDecimal = sog.GetLcNumeric()[0]
 
@@ -148,7 +148,7 @@ End
 Private Sub SetEnvironmentVars()
 
   ''Vars for OpenGL window
-  Dim i As Integer
+  'Dim i As Integer
 
   ' Select xmg.GetVar("CAD.Background-Dark", apc)
   '

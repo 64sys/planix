@@ -11,7 +11,7 @@
    version="1.1"
    id="svg14"
    sodipodi:docname="layer-erase.svg"
-   inkscape:version="0.92.3 (2405546, 2018-03-11)">
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)">
   <metadata
      id="metadata20">
     <rdf:RDF>
@@ -35,28 +35,29 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:window-width="1920"
-     inkscape:window-height="1019"
+     inkscape:window-height="1015"
      id="namedview16"
      showgrid="false"
      inkscape:zoom="9.8333333"
      inkscape:cx="3.3988017"
      inkscape:cy="22.297626"
      inkscape:window-x="1366"
-     inkscape:window-y="35"
+     inkscape:window-y="37"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg14" />
+     inkscape:current-layer="svg14"
+     inkscape:document-rotation="0" />
   <path
      inkscape:connector-curvature="0"
-     style="color:#4d4d4d;opacity:1;fill:#888888;fill-opacity:1;fill-rule:evenodd"
+     style="color:#4d4d4d;opacity:1;fill:#0066b3;fill-opacity:1;fill-rule:evenodd"
      d="m 29.38983,13.627119 -4,4 h -14 l -7.9999995,8 H 23.38983 l 12,-12 z"
      id="path24" />
   <path
      inkscape:connector-curvature="0"
-     style="color:#4d4d4d;opacity:1;fill:#888888;fill-opacity:1;fill-rule:evenodd"
+     style="color:#4d4d4d;opacity:1;fill:#0066b3;fill-opacity:1;fill-rule:evenodd"
      d="M 15.38983,3.6271186 3.3898305,15.627119 H 23.38983 l 12,-12.0000004 z"
      id="path26" />
   <path
      d="m 47.97 42.34 -5.657 -5.657 5.657 -5.657 -5.657 -5.657 -5.657 5.657 -5.657 -5.657 -5.657 5.657 5.657 5.657 -5.657 5.657 5.657 5.657 5.657 -5.657 5.657 5.657"
-     style="fill:#dc322f;fill-opacity:1"
+     style="fill:#0066b3;fill-opacity:1"
      id="path12" />
 </svg>

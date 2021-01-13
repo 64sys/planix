@@ -10,7 +10,7 @@
    viewBox="0 0 48 48"
    version="1.1"
    id="svg16"
-   sodipodi:docname="layer-add.svg"
+   sodipodi:docname="layers.svg"
    inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)">
   <metadata
      id="metadata22">
@@ -38,9 +38,9 @@
      inkscape:window-height="1015"
      id="namedview18"
      showgrid="false"
-     inkscape:zoom="6.9532169"
-     inkscape:cx="19.085179"
-     inkscape:cy="19.376888"
+     inkscape:zoom="9.8333336"
+     inkscape:cx="20.859215"
+     inkscape:cy="20.503212"
      inkscape:window-x="1366"
      inkscape:window-y="37"
      inkscape:window-maximized="1"
@@ -48,16 +48,17 @@
      inkscape:document-rotation="0" />
   <path
      inkscape:connector-curvature="0"
-     style="color:#4d4d4d;opacity:1;fill:#0066b3;fill-opacity:1;fill-rule:evenodd"
-     d="m 29.001573,12.290713 -4,3.999999 h -14 l -7.9999991,8 H 23.001573 l 12,-11.999999 z"
+     style="color:#4d4d4d;opacity:1;fill:#0066b3;fill-opacity:1;fill-rule:evenodd;stroke-width:1.39337"
+     d="m 37.382021,15.662007 -5.573512,5.573511 H 12.301216 L 1.1541928,32.382543 H 29.021753 L 45.742289,15.662007 Z"
      id="path24" />
   <path
      inkscape:connector-curvature="0"
-     style="color:#4d4d4d;opacity:1;fill:#0066b3;fill-opacity:1;fill-rule:evenodd"
-     d="m 15.001573,2.290712 -11.9999991,12 H 23.001573 l 12,-12 z"
+     style="color:#4d4d4d;opacity:1;fill:#0066b3;fill-opacity:1;fill-rule:evenodd;stroke-width:1.39337"
+     d="M 17.874728,1.7282256 1.1541928,18.448762 H 29.021753 L 45.742289,1.7282256 Z"
      id="path26" />
   <path
-     d="m 46.325557,30.357009 h -8 v -8 h -8 v 8 h -8 v 8 h 8 v 8 h 8 v -8 h 8 z"
-     style="fill:#0066b3;fill-opacity:1"
-     id="path14" />
+     inkscape:connector-curvature="0"
+     style="color:#4d4d4d;opacity:1;fill:#0066b3;fill-opacity:1;fill-rule:evenodd;stroke-width:1.39337"
+     d="m 37.382021,29.595788 -5.573512,5.573511 H 12.301216 L 1.1541928,46.316323 H 29.021753 L 45.74229,29.595788 Z"
+     id="path24-3" />
 </svg>
