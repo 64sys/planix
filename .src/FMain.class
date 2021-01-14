@@ -18,6 +18,9 @@ Public CurrentWidth As Integer      '' Selected Width
 Public EditingText As Boolean       '' Editing Text value
 Public CurrentText As String
 
+Private iMenuWidth As Integer       '' Side menu size
+Private loaded As Boolean           '' Form laded status
+
 Public Sub Form_Open()
 
   Dim svg As String
@@ -25,20 +28,20 @@ Public Sub Form_Open()
   Dim f As String
 
   m1(pnlToolsFile)
-  'm1(pnlFile2)
-  ' m1(pnlSelectFile)
   m1(pnlToolsEntities)
   m1(pnlToolsDimensions)
 
   svg = dsk.Contrary("./svg/logo.svg", "#0066b3")
   Me.Icon = Image.FromString(svg).Stretch(64, 64).Picture
-  HSplitData.Layout = [1, 4]
 
   fx = fil.ScanFiles(User.Home &/ "Documentos/cad-sample", ["[dD][wW][gG]"])
   For Each f In fx
     Print f
     OpenFile(f)
   Next
+
+  Reorganize("drawing")
+  loaded = True
 
 End
 
@@ -53,7 +56,6 @@ Private Sub m1(cnr As Container)
   Dim sPic As String
   Dim spr As Spring
   Dim sType As String
-  'Dim cbo As ComboBox
 
   btx.Clear
   shx.Clear
@@ -62,10 +64,6 @@ Private Sub m1(cnr As Container)
     Case "file"
       btx = ["indent", "~", "new", "open", "save", "save-as", "upload", "download", "print", "fullscreen", "~", "quit"]
       shx = ["Menu", "~", ("New"), ("Open"), ("Save"), ("Save as"), ("Import"), ("Export"), ("Print"), "Full screen", "~", ("Quit")]
-
-      'Case "file2"
-      '  btx = ["quit", "~"]
-      '  shx = [("Quit"), "~"]
 
     Case "entities"
       btx = ["line", "lwpolyline", "spline", "text", "mtext", "arc", "circle", "ellipse", "block", "attrib", "hatch", "insert", "leader", "point", "polygon", "rectangle", "solid", "~"]
@@ -114,16 +112,6 @@ Private Sub m1(cnr As Container)
               .Tooltip = shx[i]
               .Picture = pic
             End With
-            ' Case "ComboBox"
-            '   cbo = New ComboBox(cnr) As "mFile"
-            '   With cbo
-            '     .Name = btx[i]
-            '     .H = 35
-            '     .W = 35
-            '     .Expand = True
-            '     .Enabled = True
-            '     .Tooltip = shx[i]
-            '   End With
 
         End Select
 
@@ -136,7 +124,6 @@ Public Sub mFile_Click()
 
   Dim fx As String[]
   Dim f As String
-  'Dim cDwg As New Collection
 
   Select Last.tag
     Case "indent"
@@ -194,15 +181,20 @@ Private Sub RefreshTree()
   Dim sVsn As String
   Dim sPic As String
   Dim pic As Picture
+  Dim iSize As Integer
 
   For Each cDwg In cDrawings
     If TreeView1.Exist(cDrawings.Key) = False Then
-      If cDwg.Exist("FILEHEADER") Then
-        sVsn = dwg.DWGVersion(cDwg["FILEHEADER"]["version"])
-        TreeView1.Add(cDrawings.Key, File.BaseName(cDrawings.Key) & " [" & sVsn & "]")
-      Else
-        TreeView1.Add(cDrawings.Key, File.BaseName(cDrawings.Key))
+      'If cDwg.Exist("FILEHEADER") Then
+      '  sVsn = dwg.DWGVersion(cDwg["FILEHEADER"]["version"])
+      '  TreeView1.Add(cDrawings.Key, File.BaseName(cDrawings.Key) & " [" & sVsn & "]")
+      'Else
+      TreeView1.Add(cDrawings.Key, File.BaseName(cDrawings.Key))
+      iSize = dsk.TextWidth(File.Name(cDrawings.Key), Me.Font.Name, Me.Font.Size)
+      If iMenuWidth < iSize Then
+        iMenuWidth = iSize
       Endif
+      'Endif
 
       If cDwg.Count > 0 Then
         For Each sec In ["LAYERS", "BLOCKS", "OBJECTS", "ENTITIES", "DIMSTYLE", "LTYPES", "NESTED", "CLASSES"]
@@ -263,23 +255,16 @@ End
 
 Public Sub TreeView1_Select()
 
-  'Dim i As Integer
   Dim stx As New String[]
   Dim sObject As String
   Dim sFile As String
   Dim lay As Variant
-  'Dim hdxLayers As String[]
   Dim cCur As Collection            '' Layers on the current file
   Dim cVar As Collection            '' Variables on the current file
   Dim r As Integer
   Dim c As Integer
   Dim j As Integer
   Dim pic As Picture
-  'Dim sColor As String
-  'Dim svg As String
-  'Dim red As Integer
-  'Dim green As Integer
-  'Dim blue As Integer
 
   TableView1.Clear
   TableView1.Columns.Count = 0
@@ -313,10 +298,11 @@ Public Sub TreeView1_Select()
           TableView1[r, 0].Text = lay["handle"] '0
 
           If cVar["CLAYER"][cVar["CLAYER"].Max] = lay["handle"] Then
-            pic = Image.FromString(dsk.Contrary("./svg/layers/layer-current.svg", "#0066b3")).Stretch(16, 16).Picture
+            pic = Image.FromString(dsk.Contrary("./svg/layers/radio-on.svg", "#0066b3")).Stretch(16, 16).Picture
             TableView1[r, 1].WordWrap = True
           Else
-            pic = Image.FromString(dsk.Contrary("./svg/layers/layer.svg", "#0066b3")).Stretch(16, 16).Picture
+            TableView1[r, 2].Font.Size = Me.Font.Size
+            pic = Image.FromString(dsk.Contrary("./svg/layers/radio-off.svg", "#0066b3")).Stretch(16, 16).Picture
             TableView1[r, 1].WordWrap = False
           Endif
           TableView1[r, 1].Picture = pic
@@ -425,7 +411,6 @@ End
 
 Public Sub TableView1_Click()
 
-  'Dim mode As Boolean
   Dim pic As Picture
   Dim FClr As FColors
   Dim x As Integer
@@ -433,7 +418,6 @@ Public Sub TableView1_Click()
   Dim lst As FLtypes
   Dim wts As FWeights
   Dim vrx As Variant[]
-  'Dim img As Image
 
   Select nmxLayers[TableView1.Column]
     Case "show"
@@ -492,9 +476,6 @@ Public Sub TableView1_Click()
         FClr.Show()
         Do
           If SelectingColor = True Then
-            'r = CInt(Split(Starter.ColorsRGB[CurrentColor], ",")[0])
-            'g = CInt(Split(Starter.ColorsRGB[CurrentColor], ",")[1])
-            'b = CInt(Split(Starter.ColorsRGB[CurrentColor], ",")[2])
 
             pic = AciPic(["./svg/layers/pentagon.svg", CurrentColor, "#0066b3"])
             TableView1[TableView1.Row, TableView1.Column].Text = CurrentColor
@@ -581,12 +562,16 @@ Public Sub TableView1_DblClick()
     Case "status"
       Select TableView1[TableView1.Row, TableView1.Column].WordWrap
         Case False
-          pic = Image.FromString(dsk.Contrary("./svg/layers/layer-current.svg", "#0066b3")).Stretch(16, 16).Picture
+          'pic = Image.FromString(dsk.Contrary("./svg/layers/layer-current.svg", "#0066b3")).Stretch(16, 16).Picture
+          pic = Image.FromString(dsk.Contrary("./svg/layers/radio-on.svg", "#0066b3")).Stretch(16, 16).Picture
+          TableView1[r, TableView1.Column + 1].Font.Bold = True
           TableView1[TableView1.Row, TableView1.Column].Picture = pic
           TableView1[TableView1.Row, TableView1.Column].WordWrap = True
           For r = 0 To TableView1.Rows.Max
             If r <> iSkip Then
-              pic = Image.FromString(dsk.Contrary("./svg/layers/layer.svg", "#0066b3")).Stretch(16, 16).Picture
+              'pic = Image.FromString(dsk.Contrary("./svg/layers/layer.svg", "#0066b3")).Stretch(16, 16).Picture
+              pic = Image.FromString(dsk.Contrary("./svg/layers/radio-off.svg", "#0066b3")).Stretch(16, 16).Picture
+              TableView1[r, TableView1.Column + 1].Font.Bold = False
               TableView1[r, TableView1.Column].Picture = pic
               TableView1[r, TableView1.Column].WordWrap = False
             Endif
@@ -602,11 +587,34 @@ Private Sub Reorganize(sMode As String)
     Case "drawing"
       pnlData.Visible = False
       pnlDrawing.Visible = True
+      pnlBlocks.Visible = False
+
+    Case "blocks"
+      pnlData.Visible = False
+      pnlDrawing.Visible = False
+      pnlBlocks.Visible = True
 
     Case "data"
       pnlData.Visible = True
       pnlDrawing.Visible = False
+      pnlBlocks.Visible = False
 
   End Select
+
+End
+
+Public Sub HSplitData_Resize()
+
+  If loaded Then
+    Settings["Layout/Menu.x"] = pnlMenu.W
+  Endif
+
+End
+
+Public Sub Form_Arrange()
+
+  iMenuWidth = Settings["Layout/Menu.x", 150]
+
+  HSplitData.Layout = [1, ((HSplitData.Width - iMenuWidth) / iMenuWidth)]
 
 End

@@ -17,7 +17,7 @@
       Expand = True
       Arrangement = Arrange.Horizontal
       { HSplitData HSplit
-        MoveScaled(8,3,100,63)
+        MoveScaled(3,1,100,63)
         Expand = True
         { pnlMenu Panel
           MoveScaled(1,7,25,27)
@@ -33,66 +33,78 @@
             Border = False
           }
         }
-        { pnlData Panel
-          MoveScaled(29,8,30,26)
-          Expand = True
-          Arrangement = Arrange.Vertical
-          { Separator3 Separator
-            MoveScaled(1,1,9,0)
-          }
-          { Panel8 Panel
-            MoveScaled(1,4,27,4)
-            Visible = False
-            Arrangement = Arrange.Horizontal
-          }
-          { TableView1 TableView
-            MoveScaled(2,10,26,6)
-            Expand = True
-            Border = False
-            Header = GridView.Horizontal
-          }
-          { pnlFileData Panel
-            MoveScaled(2,18,24,7)
-            Visible = False
-            Expand = True
-            Arrangement = Arrange.Vertical
-          }
-        }
-        { pnlDrawing Panel
-          MoveScaled(61,8,37,26)
+        { pnlView Panel
+          MoveScaled(27,7,72,27)
           Expand = True
           Arrangement = Arrange.Horizontal
-          { pnlToolsEntities Panel
-            MoveScaled(1,3,5,22)
-            Enabled = False
-            Tag = "entities"
-            Arrangement = Arrange.Vertical
-            { Separator4 Separator
-              MoveScaled(1,1,3,0)
-            }
-          }
-          { DrawingArea1 DrawingArea
-            MoveScaled(8,3,18,22)
-            Background = Color.DarkGray
+          { pnlData Panel
+            MoveScaled(0,0,21,26)
             Expand = True
-          }
-          { pnlRight Panel
-            MoveScaled(30,3,5,22)
             Arrangement = Arrange.Vertical
-            { pnlToolsEdit Panel
-              MoveScaled(0,1,5,8)
-              Enabled = False
-              Tag = "tools"
+            { Separator3 Separator
+              MoveScaled(1,1,9,0)
+            }
+            { Panel8 Panel
+              MoveScaled(1,4,18,4)
+              Visible = False
+              Arrangement = Arrange.Horizontal
+            }
+            { TableView1 TableView
+              MoveScaled(2,10,17,6)
+              Expand = True
+              Border = False
+              Header = GridView.Horizontal
+            }
+            { pnlFileData Panel
+              MoveScaled(2,18,17,7)
+              Visible = False
               Expand = True
               Arrangement = Arrange.Vertical
             }
-            { pnlToolsDimensions Panel
-              MoveScaled(0,12,5,8)
+          }
+          { pnlBlocks Panel
+            MoveScaled(22,0,10,26)
+            Background = Color.DarkCyan
+            { Separator5 Separator
+              MoveScaled(1,1,7,0)
+            }
+          }
+          { pnlDrawing Panel
+            MoveScaled(33,0,37,26)
+            Expand = True
+            Arrangement = Arrange.Horizontal
+            { pnlToolsEntities Panel
+              MoveScaled(1,3,5,22)
               Enabled = False
-              Tag = "dimensions"
-              Expand = True
+              Tag = "entities"
               Arrangement = Arrange.Vertical
-              Invert = True
+              { Separator4 Separator
+                MoveScaled(1,1,3,0)
+              }
+            }
+            { DrawingArea1 DrawingArea
+              MoveScaled(20,3,9,22)
+              Background = Color.DarkGray
+              Expand = True
+            }
+            { pnlRight Panel
+              MoveScaled(30,3,5,22)
+              Arrangement = Arrange.Vertical
+              { pnlToolsEdit Panel
+                MoveScaled(0,1,5,8)
+                Enabled = False
+                Tag = "tools"
+                Expand = True
+                Arrangement = Arrange.Vertical
+              }
+              { pnlToolsDimensions Panel
+                MoveScaled(0,12,5,8)
+                Enabled = False
+                Tag = "dimensions"
+                Expand = True
+                Arrangement = Arrange.Vertical
+                Invert = True
+              }
             }
           }
         }
