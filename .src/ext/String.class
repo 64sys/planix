@@ -1,18 +1,50 @@
 ' Gambas class file
 
-''' Class strings implements simple functions to manipulate UTF-8 encoded strings. Imitating as far as possible the functions of the go strings package.
+'
+' base-rad
+' Rapid Application Development for Gambas
+'
+' Copyright (C) Martín Belmonte
+'
+' This program is free software; you can redistribute it and/or modify
+' it under the terms of the GNU General Public License as published by
+' the Free Software Foundation; either version 2 of the License, or
+' (at your option) any later version.
+'
+' This program is distributed in the hope that it will be useful,
+' but WITHOUT ANY WARRANTY; without even the implied warranty of
+' MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+' GNU General Public License for more details.
+'
+' You should have received a copy of the GNU General Public License
+' along with this program; if not, write to the Free Software
+' Foundation, Inc., 51 Franklin St, Fifth Floor,
+' Boston, MA  02110-1301  USA
+'
 
 Export
 
-Create Static
+'' <b>RAD Extension.</b><br>
+'' It removes the spaces at the beginning and the end of
+'' a <b>s</b> and if there are repeated spaces, it converts them into one.
 
-'Inherits String
+Static Public Function Trim(s As String) As String
 
-' ------------------------------------- Others Functions
+  Dim sOut As String
 
+  sOut = Trim(RTrim(s))
+  While InStr(sOut, "  ")
+    sOut = Replace(sOut, "  ", " ")
+  Wend
+
+  Return sOut
+
+End
+
+'' <b>RAD Extension.</b><br>
 '' Counts how much times some string apear in other
 
-Public Function Count(sWhere As String, sWhich As String) As Integer
+Static Public Function Count(sWhere As String, sWhich As String) As Integer
 
   Dim k As Integer = 1
   Dim q As Integer
@@ -30,9 +62,10 @@ Public Function Count(sWhere As String, sWhich As String) As Integer
 
 End
 
-'' Replace unicode like \U+0023 by # the character
+'' <b>RAD Extension.</b><br>
+'' Returns a string with all its characters converted to ascii or utf-8 when bad codification ocurr.
 
-Public Function Flat(s As String) As String
+Static Public Function Flat(s As String) As String
 
   Dim k As Integer = 1
   Dim q As Integer
@@ -66,22 +99,51 @@ End
 
 ' ------------------------------------- GO Package strings
 
-'' GO Package strings
-'' Compare returns an integer comparing two strings lexicographically.The result will be 0 If a == b, -1 If a < b, And +1 If a > b.
+'' <b>GO Package strings</b><br>
+'' <u>Compare</u> returns an integer comparing two strings lexicographically. The result will be 0 If a == b, -1 If a < b, And +1 If a > b.
 
-Public Function Compare(a As String, b As String) As Integer
+Static Public Function Compare(a As String, b As String) As Integer
+
+  If a == b Then
+    Return 0
+  Else
+    If a < b Then
+      Return -1
+    Else
+      Return 1
+    Endif
+  Endif
 
 End
 
-'' GO Package strings
+'' <b>GO Package strings</b><br>
+'' Contains reports whether substr is within s.
 
-Public Function Contains(s As String, substr As String) As Boolean
+Static Public Function Contains(s As String, substr As String) As Boolean
+
+  If InStr(s, substr) > 0 Then
+    Return True
+  Else
+    Return False
+  Endif
 
 End
 
-'' GO Package strings
+'' <b>GO Package strings</b><br>
+'' <u>ContainsAny</u> reports whether any Unicode code points in chars are within s.
 
-Public Function ContainsAny(s As String, chars As String) As Boolean
+Static Public Function ContainsAny(s As String, chars As String) As Boolean
+
+  Dim i As Integer
+  Dim b As Boolean = False
+
+  For i = 0 To chars.Len - 1
+    If s Like "*" & chars[i, 1] & "*" Then
+      b = True
+      Break
+    Endif
+  Next
+  Return b
 
 End
 
@@ -101,9 +163,30 @@ Public Function EqualFold(s As String, t As String) As Boolean
 
 End
 
+'' <b>RAD Extension.</b><br>
+'' Fields splits the string s around each instance of one or more consecutive white space characters returning a string[] of substrings of s or an empty string[] if s contains only white space.
 '' GO Package strings
+Static Public Function Fields(s As String) As String[]
 
-Public Function Fields(s As String) As String[]
+  Dim sTmp As String
+  Dim word As String
+  Dim aOut As New String[]
+
+  While InStr(sTmp, "\t")
+    sTmp = Replace(sTmp, "\t", " ")
+  Wend
+
+  sTmp = Trim(RTrim(s))
+
+  While InStr(sTmp, "  ")
+    sTmp = Replace(sTmp, "  ", " ")
+  Wend
+
+  For Each word In Split(sTmp, " ")
+    aOut.Add(word)
+  Next
+
+  Return aOut
 
 End
 
@@ -124,13 +207,13 @@ Public Function HasSuffix(s As String, suffix As String) As Boolean
 
 End
 
-'' Index returns the index of the first instance of substr in s, or -1 if substr is not present in s.
-
-Public Function Index(s As String, substr As String) As Integer
-
-  Return String.InStr(s, substr)
-
-End
+' '' Index returns the index of the first instance of substr in s, or -1 if substr is not present in s.
+'
+' Static Public Function Index(s As String, substr As String) As Integer
+'
+'   Return String.InStr(s, substr)
+'
+' End
 
 '' GO Package strings
 
@@ -232,16 +315,32 @@ Public Function SplitN(s As String, sep As String, n As Integer) As String[]
 
 End
 
+'' <b>RAD Extension.</b><br>
+'' Converts the first character of each word to upper case.
 '' GO Package strings
 
-Public Function Title(s As String) As String
+Static Public Function Title(s As String) As String
 
-  s = String.UCaseFirst(Lower(s))
-  Return s
+  Dim sTmp As String
+  Dim word As String
+  Dim aOut As New String[]
+
+  sTmp = Trim(RTrim(s))
+  While InStr(sTmp, "  ")
+    sTmp = Replace(sTmp, "  ", " ")
+  Wend
+
+  For Each word In Split(sTmp, " ")
+    aOut.Add(Upper(Mid(word, 1, 1)) & Mid(Lower(word), 2))
+  Next
+
+  Return aOut.Join(" ")
 
 End
 
 Public Function ToLower(s As String) As String
+
+  String.UCaseFirst
 
 End
 
@@ -278,11 +377,11 @@ Public Function ToValidUTF8(s As String, replacement As String) As String
 
 End
 
-'' GO Package strings
-
-Public Function Trim(s As String, cutset As String) As String
-
-End
+' '' GO Package strings
+'
+' Public Function Trim(s As String, cutset As String) As String
+'
+' End
 
 ' GO Package strings
 'Public Function TrimFunc(s As String, f func(rune)bool) As String

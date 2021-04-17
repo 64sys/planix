@@ -34,7 +34,7 @@ Public Sub Form_Open()
   svg = dsk.Contrary("./svg/logo.svg", "#0066b3")
   Me.Icon = Image.FromString(svg).Stretch(64, 64).Picture
 
-  fx = fil.ScanFiles(User.Home &/ "Documentos/cad-sample", ["[dD][wW][gG]"])
+  fx = File.ScanFiles(User.Home &/ "Documentos/cad-sample", ["[dD][wW][gG]"])
   For Each f In fx
     Print f
     OpenFile(f)
@@ -203,9 +203,9 @@ Private Sub RefreshTree()
             sPic = "./svg/" &/ Lower(sec) & ".svg"
             If Exist(sPic) Then
               pic = Image.FromString(dsk.Contrary(sPic, "#0066b3")).Stretch(16, 16).Picture
-              TreeView1.Add(cDrawings.Key & "\t" & sec, strings.Title(sec), pic, cDrawings.Key)
+              TreeView1.Add(cDrawings.Key & "\t" & sec, String.Title(sec), pic, cDrawings.Key)
             Else
-              TreeView1.Add(cDrawings.Key & "\t" & sec, strings.Title(sec),, cDrawings.Key)
+              TreeView1.Add(cDrawings.Key & "\t" & sec, String.Title(sec),, cDrawings.Key)
             Endif
 
             For Each cObj In cDwg[sec]
