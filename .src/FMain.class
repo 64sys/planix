@@ -34,7 +34,7 @@ Public Sub Form_Open()
   svg = dsk.Contrary("./svg/logo.svg", "#0066b3")
   Me.Icon = Image.FromString(svg).Stretch(64, 64).Picture
 
-  fx = File.ScanFiles(User.Home &/ "Documentos/cad-sample", ["[dD][wW][gG]"])
+  fx = File.ScanFiles(User.Home, ["[dD][wW][gG]"], 2)
   For Each f In fx
     Print f
     OpenFile(f)
