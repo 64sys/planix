@@ -5,7 +5,7 @@
   Border = False
   Arrangement = Arrange.Vertical
   { GridView1 GridView
-    MoveScaled(0,-1,33,43)
+    MoveScaled(-4,11,33,43)
     Expand = True
     Border = False
     Mode = Select.Single

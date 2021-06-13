@@ -1,0 +1,665 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: GauchoSketch 0.0.3\n"
+"POT-Creation-Date: 2021-06-01 23:02 UTC\n"
+"PO-Revision-Date: 2021-06-06 13:31 UTC\n"
+"Last-Translator: Tradukisto\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+#: Code.class:855
+msgid "Author"
+msgstr "Auteur"
+#: Code.class:856 dbs.module:1759
+msgid "Vendor"
+msgstr "Vendeur"
+#: Code.class:857
+msgid "Version"
+msgstr "Version"
+#: Code.class:858
+msgid "Date of this document"
+msgstr "Date de ce document"
+#: Code.class:859
+msgid "Components"
+msgstr "Composants"
+#: Code.class:861
+msgid "It is made up"
+msgstr "Il est composé"
+#: Code.class:861
+msgid "modules"
+msgstr "modules"
+#: Code.class:861
+msgid "methods"
+msgstr "méthodes"
+#: dbs.module:1396
+msgid "System"
+msgstr "Système"
+#: dbs.module:1396
+msgid "Extracting data from"
+msgstr "Extraction de données depuis"
+#: dbs.module:1403
+msgid "Formatting data from"
+msgstr "Formatage des données de"
+#: dbs.module:1411
+msgid "Database completed"
+msgstr "Base de données terminée"
+#: dbs.module:1494
+msgid "Table and view field titles"
+msgstr "Table et afficher les titres des champs"
+#: dbs.module:1496
+msgid "View titles"
+msgstr "Afficher les titres"
+#: dbs.module:1576
+msgid "View field titles"
+msgstr "Afficher les titres des champs"
+#: dbs.module:1746
+msgid "Date"
+msgstr "Date"
+#: dbs.module:1748 FMain.class:669
+msgid "Name"
+msgstr "Nom"
+#: dbs.module:1749
+msgid "Email"
+msgstr "Email"
+#: dbs.module:1750
+msgid "Mobile"
+msgstr "Mobile"
+#: dbs.module:1751
+msgid "Phone"
+msgstr "Téléphone"
+#: dbs.module:1754
+msgid "Quantity"
+msgstr "Quantité"
+#: dbs.module:1755
+msgid "Price"
+msgstr "Prix"
+#: dbs.module:1756
+msgid "Trademark"
+msgstr "Marque déposée"
+#: dbs.module:1757
+msgid "Description"
+msgstr "La description"
+#: dbs.module:1758
+msgid "Address"
+msgstr "Adresse"
+#: dbs.module:1760
+msgid "Class"
+msgstr "Classe"
+#: dbs.module:1761
+msgid "Code"
+msgstr "Code"
+#: dbs.module:1762
+msgid "City"
+msgstr "Ville"
+#: dbs.module:1763
+msgid "Symbol"
+msgstr "symbole"
+#: dbs.module:1764
+msgid "Job"
+msgstr "Emploi"
+#: dbs.module:1765
+msgid "Client"
+msgstr "Client"
+#: dbs.module:1766
+msgid "Type"
+msgstr "Type"
+#: dbs.module:1767 FMain.class:97 FPrint.form:63
+msgid "Color"
+msgstr "Couleur"
+#: dsk.module:101
+msgid "Select File"
+msgstr "Choisir le dossier"
+#: dsk.module:110
+msgid "Filter"
+msgstr "Filtre"
+#: dsk.module:134
+msgid "Select directory"
+msgstr "Sélectionnez le répertoire"
+#: dsk.module:191
+msgid "Hi"
+msgstr "salut"
+#: dwg.module:356
+msgid "is not contemplated"
+msgstr "n'est pas envisagé"
+#: FMain.class:97
+msgid "New"
+msgstr "Nouveau"
+#: FMain.class:97
+msgid "Open"
+msgstr "Ouvrir"
+#: FMain.class:97 FText.form:148
+msgid "Save"
+msgstr "Enregistrer"
+#: FMain.class:97
+msgid "Save as"
+msgstr "Enregistrer sous"
+#: FMain.class:97
+msgid "Import"
+msgstr "Importer"
+#: FMain.class:97
+msgid "Export"
+msgstr "Exporter"
+#: FMain.class:97 FPrint.form:163
+msgid "Print"
+msgstr "Impression"
+#: FMain.class:97
+msgid "Full screen"
+msgstr "Plein écran"
+#: FMain.class:97
+msgid "Line type"
+msgstr "Type de ligne"
+#: FMain.class:97
+msgid "Line width"
+msgstr "Largeur de ligne"
+#: FMain.class:97
+msgid "Grid"
+msgstr "Grille"
+#: FMain.class:97
+msgid "Orthogonal"
+msgstr "Orthogonal"
+#: FMain.class:97
+msgid "Quit"
+msgstr "Quitter"
+#: FMain.class:103
+msgid "line"
+msgstr "ligne"
+#: FMain.class:103
+msgid "polyline"
+msgstr "polyligne"
+#: FMain.class:103
+msgid "spline"
+msgstr "spline"
+#: FMain.class:103
+msgid "text"
+msgstr "texte"
+#: FMain.class:103
+msgid "multi text"
+msgstr "texte multi"
+#: FMain.class:103
+msgid "arc"
+msgstr "arc"
+#: FMain.class:103
+msgid "circle"
+msgstr "cercle"
+#: FMain.class:103
+msgid "ellipse"
+msgstr "ellipse"
+#: FMain.class:103
+msgid "block"
+msgstr "bloc"
+#: FMain.class:103
+msgid "attribute"
+msgstr "attribut"
+#: FMain.class:103
+msgid "hatch"
+msgstr "hachure"
+#: FMain.class:103
+msgid "insert"
+msgstr "insérer"
+#: FMain.class:103
+msgid "leader"
+msgstr "leader"
+#: FMain.class:103
+msgid "point"
+msgstr "point"
+#: FMain.class:103
+msgid "polygon"
+msgstr "polygone"
+#: FMain.class:103
+msgid "rectangle"
+msgstr "rectangle"
+#: FMain.class:103
+msgid "solid"
+msgstr "solide"
+#: FMain.class:251
+msgid "Enter command"
+msgstr "Commande d'entrée"
+#: FMain.class:256
+msgid "Enter first point"
+msgstr "Saisir le premier point"
+#: FMain.class:261
+msgid "Enter center point"
+msgstr "Entrer le point central"
+#: FMain.class:339
+msgid "Enter seccond point"
+msgstr "Entrer le deuxième point"
+#: FMain.class:669
+msgid "Status"
+msgstr "Statut"
+#: FMain.class:669
+msgid "Show"
+msgstr "Spectacle"
+#: FMain.class:669
+msgid "Frozen"
+msgstr "Congelé"
+#: FMain.class:669
+msgid "Locked"
+msgstr "Verrouillé"
+#: FMain.class:669
+msgid "Style"
+msgstr "Style"
+#: FMain.class:669
+msgid "Weight"
+msgstr "Poids"
+#: FPrint.form:51
+msgid "Gray scale"
+msgstr "Échelle de gris"
+#: FPrint.form:57
+msgid "Monochrome"
+msgstr "Monochrome"
+#: FPrint.form:77
+msgid "Geometry"
+msgstr "Géométrie"
+#: FPrint.form:84
+msgid "Sheet"
+msgstr "Feuille"
+#: FPrint.form:91
+msgid "Rectangle"
+msgstr "Rectangle"
+#: FPrint.form:98
+msgid "View"
+msgstr "Vue"
+#: FPrint.form:105
+msgid "Fit to paper size"
+msgstr "Adaptation au format du papier"
+#: FPrint.form:112
+msgid "Scale line weight"
+msgstr "Poids des lignes de l'échelle"
+#: FPrint.form:127
+msgid "Landscape"
+msgstr "Paysage"
+#: FPrint.form:134
+msgid "Portait"
+msgstr "Portait"
+#: FPrint.form:141
+msgid "Invert"
+msgstr "Inverser"
+#: FPrint.form:175 FText.form:154
+msgid "Cancel"
+msgstr "Annuler"
+#: FPrint.class:10
+msgid "Print configuration"
+msgstr "Configuration de l'impression"
+#: FText.form:58
+msgid "Font"
+msgstr "Police de caractères"
+#: FText.form:73 Main.module:85
+msgid "Height"
+msgstr "Hauteur"
+#: FText.form:89 Main.module:82
+msgid "Angle"
+msgstr "Angle"
+#: FText.form:106
+msgid "Oblique"
+msgstr "Oblique"
+#: FText.form:122
+msgid "Width"
+msgstr "Largeur"
+#: Main.module:76
+msgid "Center point"
+msgstr "Point central"
+#: Main.module:76
+msgid "Radius"
+msgstr "Rayon"
+#: Main.module:82
+msgid "Select point"
+msgstr "Point de sélection"
+#: Main.module:82
+msgid "Scale"
+msgstr "Échelle"
+#: Main.module:84
+msgid "First point"
+msgstr "Premier point"
+#: Main.module:84
+msgid "Second point"
+msgstr "Second point"
+#: .project:1
+msgid "GauchoSketch"
+msgstr "GauchoSketch"
+#: .project:2
+msgid "Technical drawing application"
+msgstr "Application de dessin technique"
+#: sog.module:34
+msgid "Operating system architecture"
+msgstr "Architecture du système d'exploitation"
+#: sog.module:35
+msgid "Processor architecture"
+msgstr "Architecture du processeur"
+#: sog.module:36
+msgid "Processor"
+msgstr "Processeur"
+#: sog.module:37
+msgid "Memory"
+msgstr "Mémoire"
+#: sog.module:38
+msgid "Computer name"
+msgstr "Nom de l'ordinateur"
+#: sog.module:39
+msgid "User"
+msgstr "Utilisateur"
+#: sog.module:40
+msgid "All users"
+msgstr "Tous les utilisateurs"
+#: sog.module:41
+msgid "Group"
+msgstr "Groupe"
+#: sog.module:43
+msgid "Last upgrade"
+msgstr "Dernière mise à jour"
+#: sog.module:111 System.class:113
+msgid "Unknown"
+msgstr "Inconnue"
+#: sog.module:1139 System.class:671
+msgid "Internal native classes "
+msgstr "Classes natives internes "
+#: sog.module:1140 System.class:672
+msgid "Program arguments parser "
+msgstr "Analyseur d'arguments de programme"
+#: sog.module:1141 System.class:673
+msgid "More container datatypes "
+msgstr "Plus de types de données de conteneurs"
+#: sog.module:1142 System.class:674
+msgid "Debugger helper "
+msgstr "Aide au débogueur"
+#: sog.module:1143 System.class:675
+msgid "Expression evaluator "
+msgstr "Évaluateur de l’expression "
+#: sog.module:1144 System.class:676
+msgid "Syntax highlighter routines "
+msgstr "Routines de surligneur de syntaxe"
+#: sog.module:1145 System.class:677
+msgid "Filesystem events monitoring "
+msgstr "Surveillance des événements du système de fichiers"
+#: sog.module:1146 System.class:678
+msgid "Flexible log message handling "
+msgstr "Gestion flexible des messages de journal"
+#: sog.module:1147 System.class:679
+msgid "NCurses library "
+msgstr "Bibliothèque NCurses"
+#: sog.module:1148 System.class:680
+msgid "GNU-style command-line arguments parser "
+msgstr "Argumente de ligne de commande de type GNU parser "
+#: sog.module:1149 System.class:681
+msgid "Perl Compatible Regular Expression matching "
+msgstr "Correspondance d’expression régulière compatible Perl "
+#: sog.module:1150 System.class:682
+msgid "Application settings management "
+msgstr "Gestion des paramètres d’application "
+#: sog.module:1151 System.class:683
+msgid "POSIX signals management "
+msgstr "Gestion des signaux POSIX"
+#: sog.module:1152 System.class:684
+msgid "Terminal management "
+msgstr "Gestion des terminaux "
+#: sog.module:1153 System.class:685
+msgid "Unit test framework "
+msgstr "Cadre de test unitaire "
+#: sog.module:1154 System.class:686
+msgid "Miscellaneous utility functions "
+msgstr "Fonctions utilitaires diverses "
+#: sog.module:1155 System.class:687
+msgid "Visual-Basic compatibility "
+msgstr "Compatibilité visuelle-de base "
+#: sog.module:1156 System.class:688
+msgid "D-Bus interface "
+msgstr "Interface D-Bus "
+#: sog.module:1157 System.class:689
+msgid "QT4/QT5 WebKit switcher component "
+msgstr "Composant de commutateur QT4/QT5 WebKit "
+#: sog.module:1158 System.class:690
+msgid "Online map viewing component "
+msgstr "Composant de visualisation de carte en ligne "
+#: sog.module:1159 System.class:691
+msgid "Gambas Markdown markup syntax "
+msgstr "Syntaxe du balisage Gambas Markdown"
+#: sog.module:1160 System.class:692
+msgid "Mime message management "
+msgstr "Gestion des messages Mime "
+#: sog.module:1161 System.class:693
+msgid "Network access and serial port management "
+msgstr "Accès au réseau et gestion de port en série "
+#: sog.module:1162 System.class:694
+msgid "Network high-level protocol management based on the Curl library "
+msgstr "Gestion de protocole de haut niveau basée sur la bibliothèque Curl "
+#: sog.module:1163 System.class:695
+msgid "POP3 client "
+msgstr "Client POP3"
+#: sog.module:1164 System.class:696
+msgid "SMTP client "
+msgstr "Client SMTP "
+#: sog.module:1165 System.class:697
+msgid "Web browser component based on WebKit for gb.qt4 "
+msgstr "Composant du navigateur Web basé sur WebKit pour gb.qt4 "
+#: sog.module:1166 System.class:698
+msgid "Web browser component based on WebKit for gb.qt5 "
+msgstr "Composant du navigateur Web basé sur WebKit pour gb.qt5 "
+#: sog.module:1167 System.class:699
+msgid "Miscellaneous utility functions for web applications "
+msgstr "Fonctions utilitaires diverses pour les applications Web"
+#: sog.module:1168 System.class:700
+msgid "Web applications development "
+msgstr "Développement d'applications Web"
+#: sog.module:1169 System.class:701
+msgid "Web feed parser and generator "
+msgstr "Paraser et générateur d’alimentation Web "
+#: sog.module:1170 System.class:702
+msgid "Web applications GUI component using processes as session "
+msgstr "Composant GUI d’applications Web utilisant les processus comme session "
+#: sog.module:1171 System.class:703
+msgid "Web applications GUI component "
+msgstr "Composant GUI des applications Web"
+#: sog.module:1172 System.class:704
+msgid "Database access "
+msgstr "Accès à la base de données "
+#: sog.module:1173 System.class:705
+msgid "Data bound controls "
+msgstr "Contrôles liés aux données "
+#: sog.module:1174 System.class:706
+msgid "MySQL specific routines "
+msgstr "Routines spécifiques mySQL "
+#: sog.module:1175 System.class:707
+msgid "Memcached client "
+msgstr "Client memcached "
+#: sog.module:1176 System.class:708
+msgid "Old XML tools based on libxml "
+msgstr "Anciens outils XML basés sur libxml "
+#: sog.module:1177 System.class:709
+msgid "XML tools now made in Gambas "
+msgstr "Outils XML maintenant fabriqués à Gambas "
+#: sog.module:1178 System.class:710
+msgid "HTML generator "
+msgstr "Générateur HTML "
+#: sog.module:1179 System.class:711
+msgid "XSLT tools based on libxml "
+msgstr "Outils XSLT basés sur libxml "
+#: sog.module:1180 System.class:712
+msgid "XML-RPC protocol implementation "
+msgstr "Mise en œuvre du protocole XML-RPC "
+#: sog.module:1181 System.class:713
+msgid "Compression library "
+msgstr "Bibliothèque de compression "
+#: sog.module:1182 System.class:714
+msgid "MD5/DES crypting "
+msgstr "Cryptage MD5/DES "
+#: sog.module:1183 System.class:715
+msgid "OpenSSL library routines "
+msgstr "Routines de bibliothèque OpenSSL "
+#: sog.module:1184 System.class:716
+msgid "Enhanced controls "
+msgstr "Contrôles améliorés "
+#: sog.module:1185 System.class:717
+msgid "Enhanced version of the standard dialogs "
+msgstr "Version améliorée des dialogues standard "
+#: sog.module:1186 System.class:718
+msgid "Multi-document interface "
+msgstr "Interface multi-documents "
+#: sog.module:1187 System.class:719
+msgid "Enhanced text editor with syntax highlighting "
+msgstr "Éditeur de texte amélioré avec mise en surbrillance syntaxe "
+#: sog.module:1188 System.class:720
+msgid "Terminal emulator "
+msgstr "Émulateur de terminal"
+#: sog.module:1189 System.class:721
+msgid "Generic preview and print form "
+msgstr "Aperçu générique et formulaire d’impression "
+#: sog.module:1190 System.class:722
+msgid "GTK+2 toolkit implementation "
+msgstr "Mise en œuvre de la boîte à outils GTK+2 "
+#: sog.module:1191 System.class:723
+msgid "GTK+3 toolkit implementation "
+msgstr "Mise en œuvre de la boîte à outils GTK+3 "
+#: sog.module:1192 System.class:724
+msgid "Qt/GTK+ component switcher "
+msgstr "Commutateur de composants Qt/GTK+ "
+#: sog.module:1193 System.class:725
+msgid "Qt4/Qt5 component switcher "
+msgstr "Commutateur de composants Qt4 / Qt5"
+#: sog.module:1194 System.class:726
+msgid "PDF renderer based on Poppler "
+msgstr "Rendu PDF basé sur Poppler"
+#: sog.module:1195 System.class:727
+msgid "Qt4 toolkit implementation "
+msgstr "Mise en œuvre de la boîte à outils Qt4 "
+#: sog.module:1196 System.class:728
+msgid "Qt4 toolkit extension "
+msgstr "Extension de boîte à outils Qt4 "
+#: sog.module:1197 System.class:729
+msgid "Qt5 toolkit implementation "
+msgstr "Mise en œuvre de la boîte à outils Qt5 "
+#: sog.module:1198 System.class:730
+msgid "Report designer "
+msgstr "Concepteur de rapports"
+#: sog.module:1200 System.class:732
+msgid "Vectorial drawing based on Cairo "
+msgstr "Dessin vectoriel basé sur le Caire "
+#: sog.module:1201 System.class:733
+msgid "Polygon clipping library based on the Clipper library "
+msgstr "Bibliothèque de découpage polygone basée sur la bibliothèque Clipper "
+#: sog.module:1202 System.class:734
+msgid "Image management component "
+msgstr "Composant de gestion d’image "
+#: sog.module:1203 System.class:735
+msgid "Image routines based on the Imlib2 library "
+msgstr "Routines d'image basées sur la bibliothèque Imlib2"
+#: sog.module:1204 System.class:736
+msgid "Image loading and saving "
+msgstr "Chargement et enregistrement d’images "
+#: sog.module:1205 System.class:737
+msgid "Image filtering routines "
+msgstr "Routines de filtrage d’image "
+#: sog.module:1206 System.class:738
+msgid "OpenGL for GTK+2 toolkit "
+msgstr "Boîte à outils OpenGL pour GTK + 2"
+#: sog.module:1207 System.class:739
+msgid "OpenGL with QT/GTK+ switcher component "
+msgstr "OpenGL avec composant de commutateur QT/GTK+ "
+#: sog.module:1208 System.class:740
+msgid "OpenGL library interface "
+msgstr "Interface bibliothèque OpenGL "
+#: sog.module:1209 System.class:741
+msgid "OpenGL Library Utility interface "
+msgstr "Interface OpenGL Library Utility "
+#: sog.module:1210 System.class:742
+msgid "OpenGL Shaders Library interface "
+msgstr "Interface OpenGL Shaders Library "
+#: sog.module:1211 System.class:743
+msgid "OpenGL Simple Game Engine based on MD2 format "
+msgstr "Moteur de jeu simple OpenGL basé sur le format MD2 "
+#: sog.module:1212 System.class:744
+msgid "OpenGL for QT4 toolkit "
+msgstr "OpenGL pour boîte à outils QT4 "
+#: sog.module:1213 System.class:745
+msgid "OpenGL for QT5 toolkit "
+msgstr "OpenGL pour boîte à outils QT5 "
+#: sog.module:1214 System.class:746
+msgid "Desktop management component "
+msgstr "Composant de gestion de bureau "
+#: sog.module:1215 System.class:747
+msgid "Gnome keyring support for desktop management component "
+msgstr "Support de keyring Gnome pour composant de gestion de bureau "
+#: sog.module:1216 System.class:748
+msgid "X-Window library interface "
+msgstr "Interface bibliothèque X-Window "
+#: sog.module:1217 System.class:749
+msgid "System tray icon management "
+msgstr "Gestion des icônes de plateau système "
+#: sog.module:1218 System.class:750
+msgid "SDL 1.2 library interface "
+msgstr "Interface bibliothèque SDL 1.2 "
+#: sog.module:1219 System.class:751
+msgid "SDL 1.2 Sound library interface "
+msgstr "Interface bibliothèque sonore SDL 1.2 "
+#: sog.module:1220 System.class:752
+msgid "SDL 2 component interface "
+msgstr "Interface composant SDL 2 "
+#: sog.module:1221 System.class:753
+msgid "SDL 2 audio component interface "
+msgstr "Interface de composant audio SDL 2"
+#: sog.module:1222 System.class:754
+msgid "GStreamer library interface "
+msgstr "Interface de bibliothèque GStreamer "
+#: sog.module:1223 System.class:755
+msgid "Multimedia player control. "
+msgstr "Contrôle du lecteur multimédia."
+#: sog.module:1224 System.class:756
+msgid "OpenAL library interface "
+msgstr "Interface de la bibliothèque OpenAL"
+#: sog.module:1225 System.class:757
+msgid "Scanner management library "
+msgstr "Bibliothèque de gestion du scanner"
+#: sog.module:1226 System.class:758
+msgid "Video capture based on Video4Linux "
+msgstr "Capture vidéo basée sur Video4Linux "
+#: sog.module:1227 System.class:759
+msgid "Complex number implementation "
+msgstr "Implémentation de nombres complexes"
+#: sog.module:1228 System.class:760
+msgid "Gnu Multiple Precision Arithmetic Library interface "
+msgstr "Interface Gnu Multiple Precision Arithmetic Library "
+#: sog.module:1229 System.class:761
+msgid "Gnu Scientific Library interface "
+msgstr "Interface Gnu Scientific Library "
+#: String.class:822 vag.module:530
+msgid "Spaces at the beginning and at the end"
+msgstr "Espaces au début et à la fin"
+#: String.class:824 vag.module:532
+msgid "Space at the start"
+msgstr "Espace au départ"
+#: String.class:828 vag.module:536
+msgid "Space at the end"
+msgstr "Espace à la fin"
+#: String.class:833 vag.module:541
+msgid "Repeated"
+msgstr "Répété"
+#: String.class:860 vag.module:568
+msgid "Excluded"
+msgstr "Exclu"
+#: String.class:864 vag.module:572
+msgid "More than one capital letter"
+msgstr "Plus d'une lettre majuscule"
+#: xmg.module:944
+msgid "Program"
+msgstr "Programme"
+#: xmg.module:948
+msgid "Application directory"
+msgstr "Répertoire des applications"
+#: xmg.module:958
+msgid "Application templates"
+msgstr "Modèles d'application"
+#: xmg.module:968
+msgid "Application reports"
+msgstr "Rapports d'application"
+#: xmg.module:978
+msgid "Window background color"
+msgstr "Couleur d'arrière-plan de la fenêtre"
+#: xmg.module:990
+msgid "Desktop"
+msgstr "Bureau"
+#: xmg.module:994
+msgid "Simple text editor by default"
+msgstr "Éditeur de texte simple par défaut"
+#: xmg.module:1004
+msgid "Program icons"
+msgstr "Icônes de programme"

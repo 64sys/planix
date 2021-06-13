@@ -91,7 +91,6 @@ End
 
 Public Sub GridView1_Select()
 
-  'Dim fl As FLayers
   Dim fm As FMain
   Dim k As Integer
 

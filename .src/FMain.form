@@ -1,7 +1,7 @@
 # Gambas Form File 3.0
 
 { Form Form
-  MoveScaled(0,0,140,94)
+  MoveScaled(0,0,140,90)
   Arrangement = Arrange.Vertical
   { pnlToolsFile Panel
     MoveScaled(9,0,118,5)
@@ -9,19 +9,20 @@
     Arrangement = Arrange.Horizontal
   }
   { Panel1 Panel
-    MoveScaled(9,6,124,86)
+    MoveScaled(1,8,124,67)
     Expand = True
     Arrangement = Arrange.Vertical
     { Panel2 Panel
-      MoveScaled(3,5,118,67)
+      MoveScaled(1,1,118,49)
       Expand = True
       Arrangement = Arrange.Horizontal
       { HSplitData HSplit
-        MoveScaled(3,2,100,63)
+        MoveScaled(3,3,112,39)
         Expand = True
         Border = False
         { pnlMenu Panel
-          MoveScaled(1,7,25,27)
+          MoveScaled(1,7,18,27)
+          Visible = False
           Expand = True
           Arrangement = Arrange.Vertical
           { Separator1 Separator
@@ -29,18 +30,18 @@
             Visible = False
           }
           { TreeView1 TreeView
-            MoveScaled(1,3,22,23)
+            MoveScaled(1,3,16,23)
             Background = Color.ButtonBackground
             Expand = True
             Border = False
           }
         }
         { pnlView Panel
-          MoveScaled(27,7,72,27)
+          MoveScaled(20,7,88,27)
           Expand = True
           Arrangement = Arrange.Horizontal
           { pnlData Panel
-            MoveScaled(0,0,21,26)
+            MoveScaled(1,0,21,26)
             Expand = True
             Arrangement = Arrange.Vertical
             { Separator3 Separator
@@ -64,20 +65,33 @@
               Arrangement = Arrange.Vertical
             }
           }
+          { pnlAuxiliar Panel
+            MoveScaled(24,0,10,26)
+            Arrangement = Arrange.Vertical
+            { Label5 Label
+              MoveScaled(1,1,6,4)
+            }
+            { GridView1 GridView
+              MoveScaled(1,5,8,19)
+              Tracking = True
+              Expand = True
+              Border = False
+            }
+          }
           { pnlBlocks Panel
-            MoveScaled(22,0,10,26)
+            MoveScaled(36,0,10,26)
             Background = Color.DarkCyan
-            { Separator5 Separator
+            Arrangement = Arrange.Vertical
+            { Separator6 Separator
               MoveScaled(1,1,7,0)
             }
           }
           { pnlDrawing Panel
-            MoveScaled(33,0,37,26)
+            MoveScaled(49,6,37,20)
             Expand = True
             Arrangement = Arrange.Horizontal
             { pnlToolsEntities Panel
-              MoveScaled(3,3,5,22)
-              Enabled = False
+              MoveScaled(2,3,5,22)
               Tag = "entities"
               Arrangement = Arrange.Vertical
               { Separator4 Separator
@@ -86,23 +100,23 @@
               }
             }
             { DrawingArea1 DrawingArea
-              MoveScaled(20,3,9,22)
-              Background = Color.DarkGray
+              MoveScaled(9,3,20,16)
+              Background = Color.Black
+              Tracking = True
               Expand = True
+              Focus = True
             }
             { pnlRight Panel
               MoveScaled(30,3,5,22)
               Arrangement = Arrange.Vertical
               { pnlToolsEdit Panel
                 MoveScaled(0,1,5,8)
-                Enabled = False
                 Tag = "tools"
                 Expand = True
                 Arrangement = Arrange.Vertical
               }
               { pnlToolsDimensions Panel
                 MoveScaled(0,12,5,8)
-                Enabled = False
                 Tag = "dimensions"
                 Expand = True
                 Arrangement = Arrange.Vertical
@@ -114,20 +128,38 @@
       }
     }
     { Separator2 Separator
-      MoveScaled(3,75,92,0)
+      MoveScaled(3,55,92,0)
       Visible = False
     }
     { Panel3 Panel
-      MoveScaled(3,80,103,5)
+      MoveScaled(4,57,103,6)
       Arrangement = Arrange.Horizontal
+      Spacing = True
+      Margin = True
+      { Label3 Label
+        MoveScaled(1,0,36,5)
+        Font = Font["+1"]
+        Expand = True
+        Alignment = Align.Left
+      }
+      { Label1 Label
+        MoveScaled(52,0,21,5)
+        Font = Font["-1"]
+        Alignment = Align.Center
+      }
       { pnlToolsCommands Panel
-        MoveScaled(0,0,54,5)
+        MoveScaled(89,0,20,5)
         Enabled = False
         Tag = "locks"
         Expand = True
         Arrangement = Arrange.Horizontal
+        Spacing = True
         Invert = True
       }
     }
+  }
+  { !Plotter #Printer
+    #MoveScaled(132,2)
+    #Public = True
   }
 }

@@ -1,0 +1,5 @@
+' Gambas module file
+
+Public Function Text(s As String) As String
+
+End

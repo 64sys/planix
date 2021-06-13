@@ -1,8 +1,8 @@
 ' Gambas class file
 
 '
-' base-rad
-' Rapid Application Development for Gambas
+' tradukisto
+' Translation of software
 '
 ' Copyright (C) Martín Belmonte
 '
@@ -90,14 +90,15 @@ End
 '' <b>RAD Extension.</b><br>
 '' Compresses all the files in a directory into a single zip file. At the moment it works properly only with the zip option
 
-Static Public Function DirZip(sDir As String, Optional md As String) As String
+'Static Public Function DirZip(sDir As String, Optional md As String) As String
+Static Public Function DirZip(sDir As String) As String
 
   Dim sFile As String
   Dim cmd As String
   Dim uDir As String
   Dim cDir As String
 
-  uDir = fil.DirParent(sDir)
+  uDir = File.ParentDir(sDir)
   cDir = Split(sDir, "/")[Split(sDir, "/").Max]
 
   sFile = sDir & ".zip"
@@ -145,7 +146,7 @@ Public Function FilesNew(strDirectory As String, Optional stxFilesOpt As String[
   Dim intFile As Integer
   Dim stxFilesNew As New String[] ' Directory files that exist in DB
 
-  stxFiles = uty.ScanDir(strDirectory, strFilterOpt)
+  stxFiles = File.ScanFiles(strDirectory, strFilterOpt)
 
   If stxFilesOpt.Count > 0 Then
     For intFile = 0 To stxFiles.Max
@@ -165,7 +166,7 @@ End
 '' command file from terminal.
 '' If Mode = True then the Short name is returned.
 
-Static Public Function Version(Path As String, Optional Mode As Boolean) As String
+Static Public Function Version(Path As String) As String
 
   Dim strVersion As String
 
@@ -185,12 +186,6 @@ Static Public Function Version(Path As String, Optional Mode As Boolean) As Stri
   Endif
 
   Return strVersion
-
-  'If Mode = True Then
-  '  Return VersionShort(strVersion)
-  'Else
-  '  Return strVersion
-  'Endif
 
 End
 
@@ -374,7 +369,7 @@ Static Public Function Log(strPath As String, strMsg As String) As String
     Else
       strText = ""
     End If
-    strText = uty.Timestamp(Now()) & " " & strMsg & "\n" & strText
+    strText = String.Timestamp(Now()) & " " & strMsg & "\n" & strText
     File.Save(strPath, strText)
     Return strPath
   Else

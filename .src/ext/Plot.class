@@ -1,0 +1,140 @@
+' Gambas class file
+
+Export
+
+Static Public Function Draw(vEnty As Variant[], da As DrawingArea) As SvgImage
+
+  Dim jObject As JSONCollection
+  Dim dx As Float = 72 / 25.4
+  'Dim dx As Float
+  Dim oSurface As New SvgImage(da.W, da.H)
+  Dim x1, x2, y1, y2 As Float
+  Dim lx, ly, tx, ty As Float
+  Dim p As Integer
+  Dim px, py As Float
+  Dim dwg_w As Float
+  Dim dwg_h As Float
+  Dim f As Float
+  Dim fx As Float
+  Dim fy As Float
+
+  For Each jObject In vEnty
+    'If jCommand["object"] = "lwpolyline" Then
+    If jObject.Exist("bounds") Then
+      If lx > jObject["bounds"][0][0] Then
+        lx = jObject["bounds"][0][0]
+      Endif
+      If ly > jObject["bounds"][0][1] Then
+        ly = jObject["bounds"][0][1]
+      Endif
+
+      If tx < jObject["bounds"][1][0] Then
+        tx = jObject["bounds"][1][0]
+      Endif
+      If ty < jObject["bounds"][1][1] Then
+        ty = jObject["bounds"][1][1]
+      Endif
+    Endif
+    'Endif
+  Next
+
+  dwg_w = tx - lx
+  dwg_h = ty - ly
+
+  fx = dwg_w / da.W
+  fy = dwg_h / da.H
+  If fx >= fy Then
+    f = fx
+  Else
+    f = fy
+  Endif
+  'Print f
+
+  dx = Abs(da.W - dwg_w) * f / 2
+
+  Paint.Begin(oSurface)
+
+  '' Drawing X axis
+  Paint.NewPath
+  Paint.Brush = Paint.Color(Color.Gray)
+  Paint.LineWidth = 1 'Main.vWidths[jObject["width"]][2]
+  Paint.MoveTo(0, da.H / 2)
+  Paint.LineTo(da.W, da.H / 2)
+  Paint.Stroke
+  '' Drawing Y axis
+  Paint.NewPath
+  Paint.Brush = Paint.Color(Color.Gray)
+  Paint.LineWidth = 1 'Main.vWidths[jObject["width"]][2]
+  Paint.MoveTo(da.W / 2, 0)
+  Paint.LineTo(da.W / 2, da.H)
+  Paint.Stroke
+
+  For Each jObject In vEnty
+    Select jObject["object"]
+      Case "lwpolyline"
+        Paint.NewPath
+        Paint.Brush = Paint.Color(Main.vColors[jObject["color"]])
+        Paint.LineWidth = Main.vWidths[jObject["width"]][2]
+
+        px = jObject["points"][0][0] / f + dx
+        py = da.h - jObject["points"][0][1] / f '- (da.h - dwg_h) * f / 2
+        Paint.MoveTo(px, py)
+
+        For p = 1 To jObject["points"].Max
+          px = jObject["points"][p][0] / f + dx
+          py = da.h - jObject["points"][p][1] / f '- (((da.h - dwg_h) * f) / 2)
+          Paint.LineTo(px, py)
+        Next
+
+        If jObject["closed"] Then
+          px = jObject["points"][0][0] / f + dx
+          py = da.h - jObject["points"][0][1] / f '- (da.h - dwg_h) * f / 2
+          Paint.LineTo(px, py)
+        Endif
+        Paint.Stroke
+
+      Case "line"
+        x1 = jObject["points"][0][0] / dx + (da.W / 2 * dx) - (dwg_w / 2 * dx)
+        y1 = (jObject["points"][0][1] * -1) / dx + da.h - ((da.h / 2 * dx) + (dwg_h / 2 * dx))
+        x2 = jObject["points"][1][0] + (da.W / 2) / dx - (dwg_w / 2)
+        y2 = (jObject["points"][1][1] * -1) / dx + da.h - ((da.h / 2) + (dwg_h / 2 * dx)) - da.h
+
+        Print "line(" & CStr(x1) & "," & CStr(y1) & ":" & CStr(x2) & "," & CStr(y2) & ")"
+
+        Paint.NewPath
+        Paint.Brush = Paint.Color(Main.vColors[jObject["color"]])
+        Paint.LineWidth = Main.vWidths[jObject["width"]][2]
+        Paint.MoveTo(x1, y1)
+        Paint.LineTo(x2, y2)
+        Paint.Stroke
+
+        'Paint.MoveTo(0, 0)
+        'Paint.LineTo(100, 100)
+        'Paint.Stroke
+
+        ' Case "circle"
+        '   x1 = jCommand["points"][0][0] + (da.W / 2) - (dwg_w / 2)
+        '   y1 = (jCommand["points"][0][1] * -1) - ((da.h / 2) + (dwg_h / 2))
+        '
+        '   'Paint.Arc(x1, y1, Sqr((x2 - x1) ^ 2 + (y2 - y1) ^ 2), 0, 2 * Pi, False)
+        '   Paint.Arc(x1, y1, jCommand["radius"], 0, 2 * Pi, False)
+        '   Paint.Stroke
+        '
+        ' Case "arc"
+        '   x1 = jCommand["points"][0][0] + (da.W / 2) - (dwg_w / 2)
+        '   y1 = (jCommand["points"][0][1] * -1) - ((da.h / 2) + (dwg_h / 2))
+        '
+        '   Paint.Arc(x1, y1, jCommand["radius"], jCommand["start_angle"], jCommand["end_angle"], False)
+        '   Paint.Stroke
+
+    End Select
+
+    'Paint.Stroke
+
+  Next
+
+  Paint.End
+
+  Return oSurface
+
+End

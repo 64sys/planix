@@ -8,13 +8,16 @@ Private etx As String               '' Editor de texto plano por defecto
 Private lgf As String               '' Archivo de registro de incidencias
 Public lgg As Logger               '' Registro de eventos de la aplicación.
 '----------------------
-Public cCommandsList As New Collection   '' Commands list
-Public cColors As New Collection     '' Colors list
+Public jCommands As New JSONCollection   '' Commands list
+
+Public vColors As New Variant[]     '' Colors list (ACI)
 Public ColorsRGB As New Variant[]    '' Colors lists each item as [r,g,b] Integer[]
-Public cStyles As New Collection     '' Linetypes list
-Public cWeights As New Collection     '' Widths list
+Public vLtypes As New Variant[]     '' Linetypes list
+Public vWidths As New Variant[]     '' Widths list
 Public sDecimal As String            '' Character used in system for separation decimal
 Public cEntities As New Collection   '' DWG Entities list
+
+Public sApplicationDirectory As String
 
 Public Sub Main()
 
@@ -25,6 +28,11 @@ Public Sub Main()
   SetEnvironmentVars()
   SetExternalApps()
   SetCommandsList()
+
+  sApplicationDirectory = User.Home &/ "." & String.Alphanumeric(Lower(Application.Name))
+  If Not Exist(sApplicationDirectory) Then
+    Shell "md -p " & sApplicationDirectory Wait
+  Endif
 
   cEntities = dwg.DWGEntityList()
 
@@ -46,49 +54,56 @@ End
 
 Private Sub SetCommandsList()
 
-  cCommandsList.Add(["chamfer", "cd"], "chamfer")
-  cCommandsList.Add(["copy", "c"], "copy")
-  cCommandsList.Add(["divide", "dx"], "divide")
-  cCommandsList.Add(["erase", "de"], "erase")
-  cCommandsList.Add(["extend", "e"], "extend")
-  cCommandsList.Add(["fillet", "f"], "fillet")
-  cCommandsList.Add(["mirror", "mn"], "mirror")
-  cCommandsList.Add(["move", "m"], "move")
-  cCommandsList.Add(["offset", "fg"], "offset")
-  cCommandsList.Add(["pan", "zc"], "pan")
-  cCommandsList.Add(["rotate", "rt"], "rotate")
-  cCommandsList.Add(["scale", "sc"], "scale")
-  cCommandsList.Add(["stretch", "s"], "stretch")
-  cCommandsList.Add(["trim", "tr"], "trim")
-  cCommandsList.Add(["zoome", "zx"], "zoome")
-  cCommandsList.Add(["zoomw", "z"], "zoomw")
+  jCommands.Add(["cancel", "^c"], "cancel")
+  jCommands.Add(["chamfer", "cd"], "chamfer")
+  jCommands.Add(["copy", "c"], "copy")
+  jCommands.Add(["divide", "dx"], "divide")
+  jCommands.Add(["erase", "de"], "erase")
+  jCommands.Add(["extend", "e"], "extend")
+  jCommands.Add(["fillet", "f"], "fillet")
+  jCommands.Add(["mirror", "mn"], "mirror")
+  jCommands.Add(["move", "m"], "move")
+  jCommands.Add(["offset", "fg"], "offset")
+  jCommands.Add(["pan", "zc"], "pan")
+  jCommands.Add(["rotate", "rt"], "rotate")
+  jCommands.Add(["scale", "sc"], "scale")
+  jCommands.Add(["stretch", "s"], "stretch")
+  jCommands.Add(["trim", "tr"], "trim")
+  'jCommands.Add(["zoome", "zx"], "zoome")
+  'jCommands.Add(["zoomw", "z"], "zoomw")
 
-  cCommandsList.Add(["arc", "a"], "arc")
-  cCommandsList.Add(["circle", "cv"], "circle")
-  cCommandsList.Add(["dim", "dw"], "dim")
-  cCommandsList.Add(["dim", "dw"], "dim")
+  jCommands.Add(["arc", "a"], "arc")
+  jCommands.Add(["circle", "cv", [("Center point"), ("Radius")]], "circle")
+  jCommands.Add(["dim", "dw"], "dim")
+  'jCommands.Add(["dim", "dw"], "dim")
 
-  cCommandsList.Add(["ellipse", "ew"], "ellipse")
-  cCommandsList.Add(["hatch", "ht"], "hatch")
-  cCommandsList.Add(["insert", "b"], "insert")
-  cCommandsList.Add(["leader", "li"], "leader")
-  cCommandsList.Add(["line", "l"], "line")
-  cCommandsList.Add(["mtext", "tt"], "mtext")
-  cCommandsList.Add(["lwpolyline", "po"], "lwpolyline")
-  cCommandsList.Add(["rectangle", "re"], "rectangle")
-  cCommandsList.Add(["solid", "sa"], "solid")
-  cCommandsList.Add(["spline", "sq"], "spline")
-  cCommandsList.Add(["text", "t"], "text")
+  jCommands.Add(["ellipse", "ew"], "ellipse")
+  jCommands.Add(["hatch", "ht"], "hatch")
+  jCommands.Add(["insert", "b", [("Select point"), ("Angle"), ("Scale")]], "insert")
+  jCommands.Add(["leader", "li"], "leader")
+  jCommands.Add(["line", "l", [("First point"), ("Second point")]], "line")
+  jCommands.Add(["mtext", "tt", [("Select point"), ("Angle"), ("Height")]], "mtext")
+  jCommands.Add(["lwpolyline", "po", [("Select point")]], "lwpolyline")
+  jCommands.Add(["rectangle", "re", [("First point"), ("Second point")]], "rectangle")
+  jCommands.Add(["solid", "sa", [("Select point")]], "solid")
+  jCommands.Add(["spline", "sq", [("Select point")]], "spline")
+  jCommands.Add(["text", "t", [("Select point"), ("Angle"), ("Height")]], "text")
 
-  cCommandsList.Add(["beam", "w1"], "beam")
-  cCommandsList.Add(["column", "w2"], "column")
-  cCommandsList.Add(["slab3p", "w3"], "slab3p")
-  cCommandsList.Add(["slab4p", "w4"], "slab4p")
-  cCommandsList.Add(["wallcolumn", "w5"], "wallcolumn")
+  ' jCommands.Add(["beam", "w1"], "beam")
+  ' jCommands.Add(["column", "w2"], "column")
+  ' jCommands.Add(["slab3p", "w3"], "slab3p")
+  ' jCommands.Add(["slab4p", "w4"], "slab4p")
+  ' jCommands.Add(["wallcolumn", "w5"], "wallcolumn")
 
-  cCommandsList.Add(["layers", "lk"], "layers")
+  'jCommands.Add(["layers", "lk"], "layers")
 
 End
+
+' Public Function ComandsSteps() As ReturnType
+'
+'   ComandsSteps.Add()
+'
+' End
 
 Private Sub SetDirsAndFiles()
 
@@ -148,7 +163,7 @@ End
 Private Sub SetEnvironmentVars()
 
   ''Vars for OpenGL window
-  'Dim i As Integer
+  Dim i As Integer
 
   ' Select xmg.GetVar("CAD.Background-Dark", apc)
   '
@@ -170,19 +185,20 @@ Private Sub SetEnvironmentVars()
 
   '' Setting the special environment variables from XML file
   ''TODO: Change to a json text file
+
   CADConfig = adi &/ "cad.xml"
 
   '' Load the colors list
   ColorsRGB = dwg.DWGColors()
-  'For i = 0 To ColorsRGB.Max
-  '  cColors.Add([ColorsRGB[i], True], CStr(i))
-  'Next
+  For i = 0 To ColorsRGB.Max
+    vColors.Add(Color.RGB(ColorsRGB[i][0], ColorsRGB[i][1], ColorsRGB[i][2]))
+  Next
 
   '' Load the linetypes list
-  cStyles = dwg.NewStyles()
+  vLtypes = dwg.NewStyles()
 
   '' Load the linetypes list
-  cWeights = dwg.NewWeights()
+  vWidths = dwg.NewWidths()
 
   ' gcolor = cad.GauchoDecodeColor()
   '

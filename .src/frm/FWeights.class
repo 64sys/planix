@@ -124,10 +124,10 @@ Public Sub GridView1_Select()
   Dim vrx As Variant
   Dim iSty As Integer
 
-  For Each vrx In Starter.cWeights
+  For Each vrx In Main.cWeights
     'If CStr(vrx[0]) = GridView1[GridView1.Row, 1].Text Then
     If vrx[0] = GridView1[GridView1.Row, 1].Text Then
-      iSty = CInt(Starter.cWeights.Key)
+      iSty = CInt(Main.cWeights.Key)
       Break
     Else
       iSty = -1

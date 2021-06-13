@@ -21,24 +21,52 @@ Public CurrentText As String
 Private iMenuWidth As Integer       '' Side menu size
 Private loaded As Boolean           '' Form laded status
 
+Private svgDraft As New SvgImage '' image to paint in drawing area
+Public Observer As Observer
+
+Public sMode As String '' Tool mode , waiting a point etc.
+
+'Private jCommands As New JSONCollection ''Commands list
+Private jCurrent As New JSONCollection ''Current properties, layer, width, color, style
+Private jSteps As JSONCollection      ''Steps for each entitiy
+Private jTask As JSONCollection      ''Current task
+Private jHistory As New Variant[]        '' Task history
+Private vEntities As New Variant[]        '' Entities for the curren drawing
+Private sPrompt As String         '' Commands prompt
+Private sKeyCollector As String         '' Commands or info for commands
+
 Public Sub Form_Open()
 
   Dim svg As String
   Dim fx As String[]
   Dim f As String
 
+  jCurrent.Clear
+  jCurrent.Add("0", "layer")
+  jCurrent.Add(1, "width") ' 1 - 31
+  jCurrent.Add(1, "color") ' 0 - 255 color 0=bylayer, 255 = byblock, 1 = red
+  jCurrent.Add(1, "ltype") ' 0 - 255 ltype 0=bylayer, 255 = byblock, 1 = continuous
+  jCurrent.Add(1, "status") ' 0 = finish, 1 = working
+  jCurrent.Add(1, "visible") ' 0 = not, 1 = yes
+  jCurrent.Add(0, "selected") ' 0 = not, 1 = yes
+  jCurrent.Add([[0, 0], [0, 0]], "bounds")
+
+  LoadColors()
+
   m1(pnlToolsFile)
   m1(pnlToolsEntities)
   m1(pnlToolsDimensions)
 
+  Observer = New Observer(Me) As "Observer"
+
   svg = dsk.Contrary("./svg/logo.svg", "#0066b3")
   Me.Icon = Image.FromString(svg).Stretch(64, 64).Picture
 
-  fx = File.ScanFiles(User.Home, ["[dD][wW][gG]"], 2)
-  For Each f In fx
-    Print f
-    OpenFile(f)
-  Next
+  'fx = File.ScanFiles(User.Home, ["[dD][wW][gG]"], 2)
+  'For Each f In fx
+  '  Print f
+  '  OpenFile(f)
+  'Next
 
   Reorganize("drawing")
   loaded = True
@@ -56,28 +84,27 @@ Private Sub m1(cnr As Container)
   Dim sPic As String
   Dim spr As Spring
   Dim sType As String
+  Dim sRGB As String
 
   btx.Clear
   shx.Clear
 
   Select cnr.Tag
     Case "file"
-      btx = ["indent", "~", "new", "open", "save", "save-as", "upload", "download", "print", "fullscreen", "~", "quit"]
-      shx = ["Menu", "~", ("New"), ("Open"), ("Save"), ("Save as"), ("Import"), ("Export"), ("Print"), "Full screen", "~", ("Quit")]
+      'btx = ["indent", "~", "new", "open", "save", "save-as", "upload", "download", "print", "fullscreen", "color", "linetype", "linewidth", "~", "quit"]
+      'shx = ["Menu", "~", ("New"), ("Open"), ("Save"), ("Save as"), ("Import"), ("Export"), ("Print"), ("Full screen"), ("Color"), ("Line type"), ("Line width"), "~", ("Quit")]
+      btx = ["~", "new", "open", "save", "save-as", "upload", "download", "print", "fullscreen", "color", "linetype", "linewidth", "grid", "ortho", "~", "quit"]
+      shx = ["~", ("New"), ("Open"), ("Save"), ("Save as"), ("Import"), ("Export"), ("Print"), ("Full screen"), ("Color"), ("Line type"), ("Line width"), ("Grid"), ("Orthogonal"), "~", ("Quit")]
+
+      'Case "properties"
 
     Case "entities"
       btx = ["line", "lwpolyline", "spline", "text", "mtext", "arc", "circle", "ellipse", "block", "attrib", "hatch", "insert", "leader", "point", "polygon", "rectangle", "solid", "~"]
       shx = [("line"), ("polyline"), ("spline"), ("text"), ("multi text"), ("arc"), ("circle"), ("ellipse"), ("block"), ("attribute"), ("hatch"), ("insert"), ("leader"), ("point"), ("polygon"), ("rectangle"), ("solid"), "~"]
 
-      'Case "edit"
-
     Case "dimensions"
       btx = ["~", "dimension_linear", "dimension_aligned", "arc_dimension", "dimension_ang3pt", "dimension_radius", "dimension_diameter", "large_radial_dimension", "dimension_ordinate", "~"]
       shx = ["~", "dimension_linear", "dimension_aligned", "arc_dimension", "dimension_ang3pt", "dimension_radius", "dimension_diameter", "large_radial_dimension", "dimension_ordinate", "~"]
-
-      ' Case "selectfile"
-      '   btx = ["select", "~"]
-      '   shx = [("Select file"), "~"]
 
   End Select
 
@@ -90,10 +117,24 @@ Private Sub m1(cnr As Container)
         Select cnr.Tag
           Case "file", "file2"
             sType = "ToolButton"
-            pic = Stock["32/" & btx[i]]
-            ' Case "selectfile"
-            '   sType = "ComboBox"
+            Select btx[i]
+              Case "color"
+                svg = ButtonColor()
+                shx[i] = shx[i] & " [" & CStr(jCurrent["color"]) & "]"
+                pic = Image.FromString(svg).Stretch(32, 32).Picture
 
+              Case "linetype", "linewidth", "grid", "ortho"
+                sPic = "./svg" &/ btx[i] & ".svg"
+                If Exist(sPic) Then
+                  svg = dsk.Contrary(sPic, "#0066b3")
+                  pic = Image.FromString(svg).Stretch(32, 32).Picture
+                Else
+                  pic = Stock["32/error"]
+                Endif
+
+              Case Else
+                pic = Stock["32/" & btx[i]]
+            End Select
           Case Else
             sType = "ToolButton"
             sPic = "./svg/" & cnr.tag &/ btx[i] & ".svg"
@@ -111,6 +152,9 @@ Private Sub m1(cnr As Container)
               .Tag = btx[i]
               .Tooltip = shx[i]
               .Picture = pic
+              If btx[i] = "grid" Or btx[i] = "ortho" Then
+                .Toggle = True
+              Endif
             End With
 
         End Select
@@ -122,32 +166,59 @@ End
 
 Public Sub mFile_Click()
 
+  Command(Last.tag)
+
+End
+
+Public Sub Command(sCommand As String, Optional vAux As Variant)
+
   Dim fx As String[]
   Dim f As String
+  Dim jCommand As Variant
+  Dim sOutput As String
+  Dim sTmp As String
+  Dim sFile As String
 
-  Select Last.tag
+  Select sCommand
     Case "indent"
       pnlMenu.Visible = Not pnlMenu.Visible
 
     Case "new"
 
     Case "open"
-      fx = dsk.FileChooser(Settings["LastDir", User.Home], ["[dD][wW][gG]"])
+      fx = dsk.FileChooser(Settings["LastDir", User.Home], ["[dD][wW][gG]", "[dD][xX][fF]"])
       If fx.Count > 0 Then
         For Each f In fx
-          If Stat(f).Type = gb.File And Lower(File.Ext(f)) = "dwg" Then
-            OpenFile(f)
+          If Stat(f).Type = gb.File Then
+            Select Lower(File.Ext(f))
+              Case "dwg"
+                OpenFile(f)
+              Case "dxf"
+                OpenFile(f)
+            End Select
           Endif
         Next
       Endif
 
     Case "save"
-    Case "save-as"
+    Case "save-as" ' testing save as dwg format
+      ' Creating data.txt
+      sOutput = dwg.AddFile(vEntities)
+      sTmp = "/tmp/data.txt"
+      sFile = User.Home &/ "Data/Documentos/cad-sample/T2000.DWG"
+      File.Save(sTmp, sOutput)
+      Wait 0.3
+      Shell "dwgadd -o " & sFile & " " & sTmp
+
     Case "upload"
     Case "download"
     Case "print"
+      FPrint.Show()
+    Case "plot"
+
     Case "quit"
       Me.Close
+
     Case "fullscreen"
       If Me.Maximized Then
         Me.Maximized = False
@@ -156,20 +227,288 @@ Public Sub mFile_Click()
         Me.Maximized = True
         Me.Border = False
       Endif
+
+      'Case "line"
+    Case "color"
+      Reorganize("properties")
+
+    Case Else
+      If Main.jCommands.Exist(sCommand) Then
+        Task("cancel")
+        Task(sCommand)
+      Endif
+
   End Select
+
+End
+
+Public Sub Task(sType As String)
+
+  Select sType
+    Case "cancel"
+      jTask = jCurrent.Copy()
+      jTask["object"] = ""
+      jTask["prompt"] = ("Enter command") & ":"
+
+    Case "line"
+      jTask = jCurrent.Copy()
+      jTask["object"] = sType
+      jTask["prompt"] = ("Enter first point") & ":"
+
+    Case "circle"
+      jTask = jCurrent.Copy()
+      jTask["object"] = sType
+      jTask["prompt"] = ("Enter center point") & ":"
+
+    Case "lwpolyline"
+      jTask = jCurrent.Copy()
+      jTask["object"] = sType
+      jTask["prompt"] = ("Enter first point") & ":"
+
+  End Select
+  PromptUpdate()
+
+End
+
+Public Sub PromptUpdate()
+
+  Label3.Text = ""
+  'Label4.Text = ""
+
+  If jTask Then
+    If jTask.Exist("prompt") Then
+      If jTask["object"] <> "" Then
+        Label3.Text = Upper(jTask["object"]) & ">" & jTask["prompt"]
+      Else
+        Label3.Text = jTask["prompt"]
+      Endif
+    Endif
+  Endif
+
+End
+
+Public Sub DrawingArea1_MouseDown()
+
+  Dim vParam As Variant
+  Dim jEnty As JSONCollection
+  Dim x As Integer
+  Dim y As Integer
+
+  Select Mouse.Button
+    Case 1
+
+      If jTask Then
+        If jTask.Count > 0 Then
+          If jTask.Exist("status") Then
+            If jTask["status"] = 1 Then
+              x = Mouse.x ' * 100 / DrawingArea1.W '- DrawingArea1.ScreenX
+              y = Mouse.Y ' * 100 / DrawingArea1.H '- DrawingArea1.ScreenY
+              AddPoints(CFloat(x), CFloat(y))
+            Endif
+          Endif
+        Endif
+      Endif
+
+    Case 3 'repeat last command
+      If jTask["object"] = "" Then
+        If jHistory.Count > 0 Then
+          For Each vParam In jHistory[jHistory.Max]
+            Select jHistory[jHistory.Max].Key
+              Case "object"
+                Command(vParam)
+            End Select
+          Next
+        Endif
+      Else
+        Command("cancel")
+      Endif
+
+  End Select
+
+End
+
+Public Sub AddPoints(x As Float, y As Float)
+
+  ' If jTask Then
+  '   If jTask.Count > 0 Then
+  '     If jTask.Exist("object") Then
+  Select jTask["object"]
+    Case "line", "circle"
+      If Not jTask.Exist("points") Then
+        jTask.Add([[CFloat(x), CFloat(y)]], "points")
+        jTask["prompt"] = ("Enter seccond point") & ":"
+        PromptUpdate()
+      Else
+        Select jTask["points"].Count
+          Case 0
+            jTask["points"].Add([CFloat(x), CFloat(y)])
+            PromptUpdate()
+          Case 1
+            jTask["points"].Add([CFloat(x), CFloat(y)])
+            If jTask["points"].Count = 2 Then
+              vEntities.Add(Bounds(jTask.Copy()))
+              DrawEntities()
+            Endif
+            jHistory.Add(jTask.Copy())
+            jTask["object"] = ""
+            jTask["prompt"] = ""
+            PromptUpdate()
+        End Select
+      Endif
+  End Select
+
+End
+
+Public Function Bounds(jTask As JSONCollection) As JSONCollection
+
+  Dim pt As Float[]
+  Dim xl As Float
+  Dim yl As Float
+  Dim xt As Float
+  Dim yt As Float
+  Dim vBounds As New Variant[]
+
+  If jTask Then
+
+    Select jTask["object"]
+      Case "line", "lwpolyline"
+        If jTask.Exist("points") Then
+          If jTask["points"].Count > 0 Then
+            For Each pt In jTask["points"]
+              If xl > pt[0] Then
+                xl = pt[0]
+              Endif
+              If xt < pt[0] Then
+                xt = pt[0]
+              Endif
+
+              If yl > pt[1] Then
+                yl = pt[1]
+              Endif
+
+              If yt < pt[1] Then
+                yt = pt[1]
+              Endif
+            Next
+          Endif
+        Endif
+      Case "circle"
+        If jTask.Exist("points") Then
+          If jTask["points"].Count > 0 Then
+            xl = jTask["points"][0][0] - jTask["radius"]
+            xt = jTask["points"][0][0] + jTask["radius"]
+            yl = jTask["points"][0][1] - jTask["radius"]
+            yt = jTask["points"][0][1] + jTask["radius"]
+          Endif
+        Endif
+
+      Case "arc"
+        If jTask.Exist("points") Then
+          If jTask["points"].Count > 0 Then
+            xl = jTask["points"][0][0] - jTask["radius"]
+            xt = jTask["points"][0][0] + jTask["radius"]
+            yl = jTask["points"][0][1] - jTask["radius"]
+            yt = jTask["points"][0][1] + jTask["radius"]
+          Endif
+        Endif
+
+    End Select
+  Endif
+
+  vBounds.Add([xl, yl])
+  vBounds.Add([xt, yt])
+
+  jTask["bounds"] = vBounds.Copy()
+
+  Return jTask
 
 End
 
 Private Sub OpenFile(sFile As String)
 
   Dim cDwg As New Collection
+  Dim jCommand As New JSONCollection
+  Dim jTmp As JSONCollection
+  Dim iWidth As Integer
+  Dim iColor As Integer
+  Dim v As Variant
+  Dim vPoints As New Variant[]
 
   cDwg.Clear
   cDwg = dwg.Raw(sFile)
-  If cDwg.Count > 0 Then
-    cDrawings.Add(cDwg.Copy(), sFile)
-    RefreshTree()
-  Endif
+
+  For Each jTmp In cDwg["ENTITIES"]
+    jCommand.Clear
+    If Main.cEntities.Exist(jTmp["Command"]) And Main.cEntities[jTmp["Command"]] = True Then
+
+      jCommand["object"] = Lower(jTmp["Command"])
+
+      If jTmp["layer"].Count > 2 Then
+        jCommand["layer"] = cDwg["LAYERS"][CStr(jTmp["layer"][2])]["name"]
+      Else
+        jCommand["layer"] = "0"
+      Endif
+
+      jCommand["color"] = jTmp["color"]
+      jCommand["width"] = jTmp["linewt"]
+
+      If jTmp.Exist("ltype") Then
+        jCommand["ltype"] = jTmp["ltype"]
+      Else
+        jCommand["ltype"] = 1
+      Endif
+
+      Select jTmp["Command"]
+
+        Case "CIRCLE"
+          vPoints.Clear
+          jCommand["points"] = [[jTmp["center"][0], jTmp["center"][1]]]
+          jCommand["radius"] = jTmp["radius"]
+
+        Case "ARC"
+          vPoints.Clear
+          jCommand["points"] = [[jTmp["center"][0], jTmp["center"][1]]]
+          jCommand["radius"] = jTmp["radius"]
+          jCommand["start_angle"] = jTmp["start_angle"]
+          jCommand["end_angle"] = jTmp["end_angle"]
+
+        Case "LINE"
+          vPoints.Clear
+          For Each v In jTmp
+            If jTmp.Key = "start" Or jTmp.Key = "end" Then
+              If Object.Type(v) = "Variant[]" Then
+                If v.Count > 1 Then
+                  vPoints.Add([jTmp[jTmp.Key][0], jTmp[jTmp.Key][1]])
+                Endif
+              Endif
+            Endif
+          Next
+
+          If vPoints.Count = 2 Then
+            jCommand["points"] = [vPoints[0], vPoints[1]]
+          Endif
+
+        Case "LWPOLYLINE"
+          For Each v In jTmp
+            If jTmp.Key = "points" Then
+              jCommand["points"] = v
+            Endif
+          Next
+
+          Select jTmp["flag"]
+            Case 512, 1
+              jCommand["closed"] = True
+            Case Else
+              jCommand["closed"] = False
+          End Select
+
+      End Select
+
+      vEntities.Add(Bounds(jCommand.Copy()))
+    Endif
+  Next
+
+  DrawEntities()
 
 End
 
@@ -185,20 +524,14 @@ Private Sub RefreshTree()
 
   For Each cDwg In cDrawings
     If TreeView1.Exist(cDrawings.Key) = False Then
-      'If cDwg.Exist("FILEHEADER") Then
-      '  sVsn = dwg.DWGVersion(cDwg["FILEHEADER"]["version"])
-      '  TreeView1.Add(cDrawings.Key, File.BaseName(cDrawings.Key) & " [" & sVsn & "]")
-      'Else
       TreeView1.Add(cDrawings.Key, File.BaseName(cDrawings.Key))
       iSize = dsk.TextWidth(File.Name(cDrawings.Key), Me.Font.Name, Me.Font.Size)
       If iMenuWidth < iSize Then
         iMenuWidth = iSize
       Endif
-      'Endif
 
       If cDwg.Count > 0 Then
         For Each sec In ["LAYERS", "BLOCKS", "OBJECTS", "ENTITIES", "DIMSTYLE", "LTYPES", "NESTED", "CLASSES"]
-          '"HEADER", "THUMBNAILIMAGE", "Template", "AuxHeader"
           If cDwg.Exist(sec) Then
             sPic = "./svg/" &/ Lower(sec) & ".svg"
             If Exist(sPic) Then
@@ -215,25 +548,21 @@ Private Sub RefreshTree()
                     TreeView1.Add(cDrawings.Key & "\t" & sec & "\t" & cObj["object"], cObj["object"],, cDrawings.Key & "\t" & sec)
                   Endif
                 Case "ENTITIES"
-                  If TreeView1.Exist(cDrawings.Key & "\t" & sec & "\t" & cObj["entity"]) = False Then
-                    If InStr(Lower(cObj["entity"]), "dimension") > 0 Then
-                      sPic = "./svg/" & "dimensions" &/ Lower(cObj["entity"]) & ".svg"
+                  If TreeView1.Exist(cDrawings.Key & "\t" & sec & "\t" & cObj["Command"]) = False Then
+                    If InStr(Lower(cObj["Command"]), "dimension") > 0 Then
+                      sPic = "./svg/" & "dimensions" &/ Lower(cObj["Command"]) & ".svg"
                     Else
-                      sPic = "./svg/" & Lower(sec) &/ Lower(cObj["entity"]) & ".svg"
+                      sPic = "./svg/" & Lower(sec) &/ Lower(cObj["Command"]) & ".svg"
                     Endif
 
                     If Exist(sPic) Then
                       pic = Image.FromString(dsk.Contrary(sPic, "#0066b3")).Stretch(16, 16).Picture
-                      TreeView1.Add(cDrawings.Key & "\t" & sec & "\t" & cObj["entity"], cObj["entity"], pic, cDrawings.Key & "\t" & sec)
+                      TreeView1.Add(cDrawings.Key & "\t" & sec & "\t" & cObj["Command"], cObj["Command"], pic, cDrawings.Key & "\t" & sec)
                     Else
-                      TreeView1.Add(cDrawings.Key & "\t" & sec & "\t" & cObj["entity"], cObj["entity"],, cDrawings.Key & "\t" & sec)
+                      TreeView1.Add(cDrawings.Key & "\t" & sec & "\t" & cObj["Command"], cObj["Command"],, cDrawings.Key & "\t" & sec)
                     Endif
 
                   Endif
-                  'Case "LAYERS"
-                  '  If TreeView1.Exist(cDrawings.Key & "\t" & sec & "\t" & cObj["name"]) = False Then
-                  '    TreeView1.Add(cDrawings.Key & "\t" & sec & "\t" & cObj["name"], cObj["name"],, cDrawings.Key & "\t" & sec)
-                  '  Endif
               End Select
 
             Next
@@ -241,9 +570,63 @@ Private Sub RefreshTree()
         Next
       Endif
     Endif
-    'TreeView1[cDrawings.Key].Expanded = True
   Next
-  'Endif
+
+End
+
+' Private Sub RefreshDraw()
+'
+'   Dim cDwg As Collection
+'   Dim cObj As Collection
+'   Dim sec As String
+'   Dim sVsn As String
+'   Dim sPic As String
+'   Dim pic As Picture
+'   Dim iSize As Integer
+'
+'   For Each cDwg In cDrawings
+'     If cDwg.Count > 0 Then
+'       For Each sec In ["LAYERS", "BLOCKS", "OBJECTS", "ENTITIES", "DIMSTYLE", "LTYPES", "NESTED", "CLASSES"]
+'         If cDwg.Exist(sec) Then
+'           For Each cObj In cDwg[sec]
+'             Select sec
+'               Case "ENTITIES"
+'                 svgDraft.Clear
+'                 svgDraft = Plot.Draw(cDwg[sec])
+'                 DrawingArea1.Refresh
+'             End Select
+'           Next
+'         Endif
+'       Next
+'     Endif
+'   Next
+'
+' End
+
+Private Sub DrawEntities()
+
+  svgDraft.Clear
+  svgDraft = Plot.Draw(vEntities, DrawingArea1)
+  DrawingArea1.Refresh
+
+End
+
+Public Sub DrawingArea1_Draw()
+
+  Dim svgTemplate As New SvgImage(297 * (72 / 25.4), 210 * (72 / 25.4))
+  Dim img As SvgImage
+  Dim dx As Float
+
+  If svgDraft.Width > 0 Then
+    svgDraft.Paint
+  Else
+    img = SvgImage.Load("./svg/logo3.svg")
+    svgTemplate = SvgImage.Load("./svg/logo3.svg")
+    dx = svgTemplate.Width / img.Width
+    svgTemplate.Width = img.Width / dx
+    svgTemplate.Height = img.Height / dx
+    svgTemplate.Paint
+  Endif
 
 End
 
@@ -266,111 +649,115 @@ Public Sub TreeView1_Select()
   Dim j As Integer
   Dim pic As Picture
 
-  TableView1.Clear
-  TableView1.Columns.Count = 0
-  TableView1.Rows.Count = 0
+  If loaded Then
 
-  If InStr(TreeView1.Key, "\t") > 0 Then
-    stx = Split(TreeView1.Key, "\t")
-    sFile = stx[0]
-    cVar = cDrawings[sFile]["HEADER"]
-    sObject = stx[1]
-    Me.Text = File.Name(sFile) & "::" & sObject
-    Reorganize("data")
-    Select sObject
-      Case "LAYERS"
-        hdxLayers = ["id", ("Status"), ("Name"), ("Show"), ("Frozen"), ("Locked"), ("Color"), ("Style"), ("Weight"), ("Print")]
-        nmxLayers = ["id", "status", "name", "show", "frozen", "locked", "color", "style", "weight", "print"]
-        TableView1.Columns.Count = 10
-        TableView1.Columns[2].Expand = True
-        For j = 3 To 9
-          TableView1.Columns[j].Width = -1
-        Next
+    TableView1.Clear
+    TableView1.Columns.Count = 0
+    TableView1.Rows.Count = 0
 
-        For c = 0 To hdxLayers.Max
-          TableView1.Columns[c].Title = hdxLayers[c]
-        Next
+    If InStr(TreeView1.Key, "\t") > 0 Then
+      stx = Split(TreeView1.Key, "\t")
+      sFile = stx[0]
+      cVar = cDrawings[sFile]["HEADER"]
+      sObject = stx[1]
+      Me.Text = File.Name(sFile) & "::" & sObject
+      Reorganize("data")
+      Select sObject
+        Case "LAYERS"
+          hdxLayers = ["id", ("Status"), ("Name"), ("Show"), ("Frozen"), ("Locked"), ("Color"), ("Style"), ("Weight"), ("Print")]
+          nmxLayers = ["id", "status", "name", "show", "frozen", "locked", "color", "style", "weight", "print"]
+          TableView1.Columns.Count = 10
+          TableView1.Columns[2].Expand = True
+          For j = 3 To 9
+            TableView1.Columns[j].Width = -1
+          Next
 
-        cCur = cDrawings[sFile]["LAYERS"]
-        TableView1.Rows.Count = cCur.Count
-        r = 0
-        For Each lay In cCur
-          TableView1[r, 0].Text = lay["handle"] '0
+          For c = 0 To hdxLayers.Max
+            TableView1.Columns[c].Title = hdxLayers[c]
+          Next
 
-          If cVar["CLAYER"][cVar["CLAYER"].Max] = lay["handle"] Then
-            pic = Image.FromString(dsk.Contrary("./svg/layers/radio-on.svg", "#0066b3")).Stretch(16, 16).Picture
-            TableView1[r, 1].WordWrap = True
-          Else
-            TableView1[r, 2].Font.Size = Me.Font.Size
-            pic = Image.FromString(dsk.Contrary("./svg/layers/radio-off.svg", "#0066b3")).Stretch(16, 16).Picture
-            TableView1[r, 1].WordWrap = False
-          Endif
-          TableView1[r, 1].Picture = pic
-          TableView1[r, 1].Alignment = Align.Center
-          '---------------
-          TableView1[r, 2].Text = lay["name"]   '1
-          '---------------
-          If lay["show"] Then
-            pic = Image.FromString(dsk.Contrary("./svg/layers/lamp-on.svg", "#0066b3")).Stretch(16, 16).Picture
-            TableView1[r, 3].WordWrap = True
-          Else
-            pic = Image.FromString(dsk.Contrary("./svg/layers/lamp-off.svg", "#0066b3")).Stretch(16, 16).Picture
-            TableView1[r, 3].WordWrap = False
-          Endif
-          TableView1[r, 3].Picture = pic
-          TableView1[r, 3].Alignment = Align.Center
-          '---------------
-          If lay["frozen"] Then
-            pic = Image.FromString(dsk.Contrary("./svg/layers/frozen.svg", "#0066b3")).Stretch(16, 16).Picture
-            TableView1[r, 4].WordWrap = True
-          Else
-            pic = Image.FromString(dsk.Contrary("./svg/layers/liquid.svg", "#0066b3")).Stretch(16, 16).Picture
-            TableView1[r, 4].WordWrap = False
-          Endif
-          TableView1[r, 4].Picture = pic
-          TableView1[r, 4].Alignment = Align.Center
-          '---------------
-          If lay["locked"] Then
-            pic = Image.FromString(dsk.Contrary("./svg/layers/lock-on.svg", "#0066b3")).Stretch(16, 16).Picture
-            TableView1[r, 5].WordWrap = True
-          Else
-            pic = Image.FromString(dsk.Contrary("./svg/layers/lock-off.svg", "#0066b3")).Stretch(16, 16).Picture
-            TableView1[r, 5].WordWrap = False
-          Endif
-          TableView1[r, 5].Picture = pic
-          TableView1[r, 5].Alignment = Align.Center
-          '---------------
-          pic = AciPic(["./svg/layers/pentagon.svg", lay["color"], "#0066b3"])
-          TableView1[r, 6].Picture = pic
-          TableView1[r, 6].Text = lay["color"]   '5
-          '---------------
-          TableView1[r, 7].Text = lay["style"]   '6
-          TableView1[r, 7].Alignment = Align.Center
+          cCur = cDrawings[sFile]["LAYERS"]
+          TableView1.Rows.Count = cCur.Count
+          r = 0
+          For Each lay In cCur
+            TableView1[r, 0].Text = lay["handle"] '0
 
-          TableView1[r, 8].Text = lay["weight"]   '7
-          TableView1[r, 8].Alignment = Align.Center
-          '---------------
-          If lay["print"] Then
-            pic = Image.FromString(dsk.Contrary("./svg/layers/print-on.svg", "#0066b3")).Stretch(16, 16).Picture
-            TableView1[r, 9].WordWrap = True
-          Else
-            pic = Image.FromString(dsk.Contrary("./svg/layers/print-off.svg", "#0066b3")).Stretch(16, 16).Picture
-            TableView1[r, 9].WordWrap = False
-          Endif
-          TableView1[r, 9].Picture = pic
-          TableView1[r, 9].Alignment = Align.Center
+            If cVar["CLAYER"][cVar["CLAYER"].Max] = lay["handle"] Then
+              pic = Image.FromString(dsk.Contrary("./svg/layers/radio-on.svg", "#0066b3")).Stretch(16, 16).Picture
+              TableView1[r, 1].WordWrap = True
+            Else
+              TableView1[r, 2].Font.Size = Me.Font.Size
+              pic = Image.FromString(dsk.Contrary("./svg/layers/radio-off.svg", "#0066b3")).Stretch(16, 16).Picture
+              TableView1[r, 1].WordWrap = False
+            Endif
+            TableView1[r, 1].Picture = pic
+            TableView1[r, 1].Alignment = Align.Center
+            '---------------
+            TableView1[r, 2].Text = lay["name"]   '1
+            '---------------
+            If lay["show"] Then
+              pic = Image.FromString(dsk.Contrary("./svg/layers/lamp-on.svg", "#0066b3")).Stretch(16, 16).Picture
+              TableView1[r, 3].WordWrap = True
+            Else
+              pic = Image.FromString(dsk.Contrary("./svg/layers/lamp-off.svg", "#0066b3")).Stretch(16, 16).Picture
+              TableView1[r, 3].WordWrap = False
+            Endif
+            TableView1[r, 3].Picture = pic
+            TableView1[r, 3].Alignment = Align.Center
+            '---------------
+            If lay["frozen"] Then
+              pic = Image.FromString(dsk.Contrary("./svg/layers/frozen.svg", "#0066b3")).Stretch(16, 16).Picture
+              TableView1[r, 4].WordWrap = True
+            Else
+              pic = Image.FromString(dsk.Contrary("./svg/layers/liquid.svg", "#0066b3")).Stretch(16, 16).Picture
+              TableView1[r, 4].WordWrap = False
+            Endif
+            TableView1[r, 4].Picture = pic
+            TableView1[r, 4].Alignment = Align.Center
+            '---------------
+            If lay["locked"] Then
+              pic = Image.FromString(dsk.Contrary("./svg/layers/lock-on.svg", "#0066b3")).Stretch(16, 16).Picture
+              TableView1[r, 5].WordWrap = True
+            Else
+              pic = Image.FromString(dsk.Contrary("./svg/layers/lock-off.svg", "#0066b3")).Stretch(16, 16).Picture
+              TableView1[r, 5].WordWrap = False
+            Endif
+            TableView1[r, 5].Picture = pic
+            TableView1[r, 5].Alignment = Align.Center
+            '---------------
+            pic = AciPic(["./svg/layers/pentagon.svg", lay["color"], "#0066b3"])
+            TableView1[r, 6].Picture = pic
+            TableView1[r, 6].Text = lay["color"]   '5
+            '---------------
+            TableView1[r, 7].Text = lay["style"]   '6
+            TableView1[r, 7].Alignment = Align.Center
 
-          Inc r
-        Next
-        TableView1.Columns[0].Width = 0
-    End Select
+            TableView1[r, 8].Text = lay["weight"]   '7
+            TableView1[r, 8].Alignment = Align.Center
+            '---------------
+            If lay["print"] Then
+              pic = Image.FromString(dsk.Contrary("./svg/layers/print-on.svg", "#0066b3")).Stretch(16, 16).Picture
+              TableView1[r, 9].WordWrap = True
+            Else
+              pic = Image.FromString(dsk.Contrary("./svg/layers/print-off.svg", "#0066b3")).Stretch(16, 16).Picture
+              TableView1[r, 9].WordWrap = False
+            Endif
+            TableView1[r, 9].Picture = pic
+            TableView1[r, 9].Alignment = Align.Center
 
-  Else
-    sFile = TreeView1.Key
-    Me.Text = File.Name(sFile)
-    cVar = cDrawings[sFile]["HEADER"]
-    sObject = "DRAWING"
-    Reorganize("drawing")
+            Inc r
+          Next
+          TableView1.Columns[0].Width = 0
+      End Select
+
+    Else
+      sFile = TreeView1.Key
+      Me.Text = File.Name(sFile)
+      cVar = cDrawings[sFile]["HEADER"]
+      sObject = "DRAWING"
+      Reorganize("drawing")
+    Endif
+
   Endif
 
 End
@@ -389,7 +776,7 @@ Private Function AciPic(vrx As Variant[]) As Picture
 
   If Exist(vrx[0]) Then
     svg = dsk.Contrary(vrx[0], vrx[2]) ' "#0066b3"
-    clx = Starter.ColorsRGB[vrx[1]]
+    clx = Main.ColorsRGB[vrx[1]]
 
     sColor = "#" & Hex(Color.RGB(clx[0], clx[1], clx[2]), 6)
 
@@ -496,14 +883,14 @@ Public Sub TableView1_Click()
         x = TableView1[TableView1.Row, TableView1.Column].X + TableView1.ScreenX
         y = TableView1[TableView1.Row, TableView1.Column].Y + TableView1.ScreenY + TableView1.Rows.Height * 2
 
-        lst = New FLtypes(Starter.cStyles, [x, y], Me)
+        lst = New FLtypes(Main.cLtypes, [x, y], Me)
         lst.Stacking = Window.Above
         lst.Run()
         Do
           If SelectingLtype = True Then
 
-            For Each vrx In Starter.cStyles
-              If CInt(Starter.cStyles.Key) = CurrentLtype Then
+            For Each vrx In Main.cLtypes
+              If CInt(Main.cLtypes.Key) = CurrentLtype Then
                 TableView1[TableView1.Row, TableView1.Column].Text = vrx[2]
                 Break
               Else
@@ -524,14 +911,14 @@ Public Sub TableView1_Click()
         x = TableView1[TableView1.Row, TableView1.Column].X + TableView1.ScreenX
         y = TableView1[TableView1.Row, TableView1.Column].Y + TableView1.ScreenY + TableView1.Rows.Height * 2
 
-        wts = New FWeights(Starter.cWeights, [x, y], Me)
+        wts = New FWeights(Main.cWeights, [x, y], Me)
         wts.Stacking = Window.Above
         wts.Run()
         Do
           If SelectingWidht = True Then
 
-            For Each vrx In Starter.cWeights
-              If CInt(Starter.cWeights.Key) = CurrentWidth Then
+            For Each vrx In Main.cWeights
+              If CInt(Main.cWeights.Key) = CurrentWidth Then
                 TableView1[TableView1.Row, TableView1.Column].Text = vrx[0]
                 Break
               Else
@@ -588,16 +975,25 @@ Private Sub Reorganize(sMode As String)
       pnlData.Visible = False
       pnlDrawing.Visible = True
       pnlBlocks.Visible = False
+      pnlAuxiliar.Visible = False
 
     Case "blocks"
       pnlData.Visible = False
       pnlDrawing.Visible = False
       pnlBlocks.Visible = True
+      pnlAuxiliar.Visible = False
+
+    Case "properties"
+      pnlData.Visible = False
+      pnlDrawing.Visible = True
+      pnlBlocks.Visible = False
+      pnlAuxiliar.Visible = True
 
     Case "data"
       pnlData.Visible = True
       pnlDrawing.Visible = False
       pnlBlocks.Visible = False
+      pnlAuxiliar.Visible = False
 
   End Select
 
@@ -611,10 +1007,222 @@ Public Sub HSplitData_Resize()
 
 End
 
-Public Sub Form_Arrange()
+' Public Sub Form_Arrange()
+'
+'   iMenuWidth = Settings["Layout/Menu.x", 150]
+'   HSplitData.Layout = [1, ((HSplitData.Width - iMenuWidth) / iMenuWidth)]
+'
+' End
 
-  iMenuWidth = Settings["Layout/Menu.x", 150]
+Public Sub DrawingArea1_MouseMove()
 
-  HSplitData.Layout = [1, ((HSplitData.Width - iMenuWidth) / iMenuWidth)]
+  Label1.Text = Format(Mouse.X, "0000.00") & " : " & Format(Mouse.Y, "0000.00")
+
+End
+
+'Public Observer As Observer
+' Public Sub Form_Open()
+'   Observer = New Observer(Me) As "Observer"
+' End
+
+Public Sub Observer_KeyPress()
+
+  Dim ob As Object
+
+  If Key.Code = Key.Enter Or Key.Code = Key.Return Then 'And If Key.Control Then
+    If Main.jCommands.Exist(sKeyCollector) Then
+      'Command(sKeyCollector)
+      Command("cancel")
+      Command(sKeyCollector)
+    Endif
+    'Label3.Text = sPrompt & " " & sKeyCollector
+    sPrompt = ""
+    sKeyCollector = ""
+  Else
+    Select Key.Code
+      Case Key.F8
+        For Each ob In pnlToolsFile.Children
+          If ob.Tag = "ortho" Then
+            jCurrent["ortho"] = Not ob.Value
+            ob.Value = Not ob.Value
+          Endif
+        Next
+
+      Case Key.F9
+        For Each ob In pnlToolsFile.Children
+          If ob.Tag = "grid" Then
+            jCurrent["grid"] = Not ob.Value
+            ob.Value = Not ob.Value
+          Endif
+        Next
+
+      Case Key.Escape
+        sPrompt = ""
+        sKeyCollector = ""
+        'Label3.Text = sPrompt & " " & sKeyCollector
+      Case Key.BackSpace
+        sKeyCollector = Left(sKeyCollector, -1)
+      Case Else
+        sKeyCollector = sKeyCollector & Key.Text
+    End Select
+    Label3.Text = sPrompt & " " & sKeyCollector
+  Endif
+
+End
+
+' Public Sub Form_KeyPress()
+'
+'   If Key.Code = Key.Enter Then
+'     If Main.jCommands.Exist(sKeyCollector) Then
+'       Command(sKeyCollector)
+'     Endif
+'     sPrompt = ""
+'     sKeyCollector = ""
+'   Else
+'     Select Key.Code
+'       Case Key.Escape
+'         sPrompt = ""
+'         sKeyCollector = ""
+'         'Label3.Text = sPrompt & " " & sKeyCollector
+'       Case Key.BackSpace
+'         sKeyCollector = Left(sKeyCollector, -1)
+'       Case Else
+'         sKeyCollector = sKeyCollector & Key.Text
+'
+'     End Select
+'
+'   Endif
+'
+'   Label3.Text = sPrompt & " " & sKeyCollector
+'
+' End
+
+Public Function ButtonColor() As String
+
+  Dim svg As String
+  Dim sPic As String
+  Dim sRGB As String
+
+  sPic = "./svg/color.svg"
+  svg = dsk.Contrary(sPic, "#0066b3")
+  If jCurrent["color"] >= 0 Or jCurrent["color"] < 256 Then
+    sRGB = "#" & Hex(Main.vColors[jCurrent["color"]], 6)
+    svg = Replace(svg, "#ffffff", sRGB)
+  Endif
+
+  Return svg
+
+End
+
+Public Sub LoadColors()
+
+  Dim i As Integer
+  Dim crs As New Variant[]
+  Dim s As Integer
+  Dim j As Integer
+  Dim k As Integer
+  Dim rw As Integer
+  'Dim q As Integer
+
+  s = 16 ' / 2
+  'q = 16
+
+  crs = dwg.DWGColors()
+
+  GridView1.Header = GridView.None
+
+  GridView1.Columns.Count = 9 'q '16
+  GridView1.Rows.Count = 29 'q '16
+
+  GridView1.Rows.Height = s
+  GridView1.Columns.Width = s
+
+  For j = 0 To 28 '15
+    For i = 0 To 8 '15
+
+      'k = (rw * 32) + i
+      k = (j * 9) + i
+
+      Select k
+        Case 0
+          GridView1[j, i].Text = "B"
+          GridView1[j, i].Alignment = Align.Center
+          GridView1[j, i].Background = Color.White
+        Case 255
+          GridView1[j, i].Text = "L"
+          GridView1[j, i].Alignment = Align.Center
+          GridView1[j, i].Background = Color.White
+        Case Else
+          Print k
+          If k < 255 Then
+            GridView1[j, i].Background = Color.RGB(crs[k][0], crs[k][1], crs[k][2])
+          Endif
+      End Select
+
+    Next
+    'Inc rw
+  Next
+
+  pnlAuxiliar.Width = 9 * s
+  'Me.Height = 16 * s
+
+End
+
+Public Sub GridView1_Click()
+
+  Dim k As Integer
+  Dim ctl As Object
+  Dim svg As String
+  Dim pic As Picture
+  Dim sTag As String
+
+  k = (GridView1.Row * 9) + GridView1.Column
+
+  jCurrent["color"] = k
+  Select k
+    Case 0
+      sTag = "ByBlock"
+    Case 255
+      sTag = "ByLayer"
+    Case Else
+      sTag = CStr(k)
+  End Select
+
+  For Each ctl In pnlToolsFile.Children
+    If ctl.Tag = "color" Then
+      svg = ButtonColor()
+      pic = Image.FromString(svg).Stretch(32, 32).Picture
+      ctl.Picture = pic
+      ctl.Tooltip = ("Color") & " [" & sTag & "]"
+    Endif
+  Next
+  Reorganize("drawing")
+
+End
+
+Public Sub GridView1_MouseMove()
+
+  Dim k As Integer
+
+  k = (GridView1.RowAt(Mouse.Y) * 9) + GridView1.ColumnAt(Mouse.X)
+
+  Select k
+    Case 0
+      Label5.Text = ("Color") & ": ByBlock [" & CStr(k) & "]"
+
+    Case 255
+      Label5.Text = ("Color") & ": ByLayer [" & CStr(k) & "]"
+
+    Case Else
+      Label5.Text = ("Color") & ": " & CStr(k)
+
+  End Select
+
+End
+
+Public Sub DrawingArea1_MouseWheel()
+
+  'DrawEntities()
+  Label3.Text = "DA w:" & CStr(DrawingArea1.W) & " h:" & CStr(DrawingArea1.H)
 
 End

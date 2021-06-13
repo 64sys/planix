@@ -109,9 +109,9 @@ Public Sub GridView1_Select()
   Dim vrx As Variant
   Dim iSty As Integer
 
-  For Each vrx In Starter.cStyles
+  For Each vrx In Main.cStyles
     If vrx[2] = GridView1[GridView1.Row, 1].Text Then
-      iSty = CInt(Starter.cStyles.Key)
+      iSty = CInt(Main.cStyles.Key)
       Break
     Else
       iSty = -1
